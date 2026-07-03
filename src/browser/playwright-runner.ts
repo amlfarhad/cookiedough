@@ -2,6 +2,7 @@ import { chromium } from "@playwright/test";
 import fs from "fs-extra";
 import path from "node:path";
 import type { Redactor } from "../core/redaction.js";
+import type { CredentialHints } from "../safety/credential-store.js";
 import { sameOrigin, normalizeUrl } from "./crawl.js";
 import { fillSafeForms, safeClickableLocators } from "./interactions.js";
 import type { BrowserAuditEvidence } from "./evidence.js";
@@ -11,6 +12,7 @@ export interface BrowserAuditOptions {
   outDir: string;
   maxPages: number;
   redactor: Redactor;
+  credentials?: CredentialHints;
 }
 
 export async function runBrowserAudit(options: BrowserAuditOptions): Promise<BrowserAuditEvidence> {
@@ -92,7 +94,7 @@ export async function runBrowserAudit(options: BrowserAuditOptions): Promise<Bro
         }
       }
 
-      evidence.submittedForms.push(...await fillSafeForms(page));
+      evidence.submittedForms.push(...await fillSafeForms(page, options.credentials));
 
       const clickables = await safeClickableLocators(page);
       for (const clickable of clickables.slice(0, 20)) {

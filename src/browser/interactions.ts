@@ -1,5 +1,6 @@
 import type { Locator, Page } from "@playwright/test";
 import type { EvidenceRef } from "../core/types.js";
+import type { CredentialHints } from "../safety/credential-store.js";
 
 const DESTRUCTIVE_PATTERN = /\b(delete|remove|cancel subscription|purchase|buy|checkout|pay|send money|transfer|log out|logout)\b/i;
 const SENSITIVE_FIELD_PATTERN = /\b(card|cc-|cvc|cvv|ssn|social|routing|account number)\b/i;
@@ -20,7 +21,7 @@ export async function safeClickableLocators(page: Page): Promise<Locator[]> {
   return safe;
 }
 
-export async function fillSafeForms(page: Page): Promise<EvidenceRef[]> {
+export async function fillSafeForms(page: Page, credentials: CredentialHints = {}): Promise<EvidenceRef[]> {
   const submitted: EvidenceRef[] = [];
   const forms = await page.locator("form").all();
   for (const form of forms.slice(0, 5)) {
@@ -35,9 +36,11 @@ export async function fillSafeForms(page: Page): Promise<EvidenceRef[]> {
       if (["hidden", "file", "checkbox", "radio", "submit", "button"].includes(type)) continue;
       if (SENSITIVE_FIELD_PATTERN.test(name)) continue;
       if (type === "email" || /email/i.test(name)) {
-        await input.fill("cookiedough@example.test").catch(() => undefined);
+        await input.fill(credentials.email ?? credentials.username ?? "cookiedough@example.test").catch(() => undefined);
       } else if (type === "password" || /password/i.test(name)) {
-        await input.fill("CookieDough-Test-Password-123").catch(() => undefined);
+        await input.fill(credentials.password ?? "CookieDough-Test-Password-123").catch(() => undefined);
+      } else if (/user(name)?/i.test(name)) {
+        await input.fill(credentials.username ?? credentials.email ?? "cookiedough-test-user").catch(() => undefined);
       } else {
         await input.fill("CookieDough test input").catch(() => undefined);
       }
@@ -46,7 +49,7 @@ export async function fillSafeForms(page: Page): Promise<EvidenceRef[]> {
     const submit = form.locator("button[type='submit'], input[type='submit'], button").first();
     if (await submit.isVisible().catch(() => false)) {
       await submit.click({ timeout: 1500 }).catch(() => undefined);
-      submitted.push({ type: "dom", message: `Submitted safe non-payment form on ${page.url()}` });
+      submitted.push({ type: "dom", message: `Submitted safe non-payment form on ${page.url()}${credentials.password ? " using supplied test credential hints" : ""}` });
       await page.waitForTimeout(300);
     }
   }

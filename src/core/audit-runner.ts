@@ -12,7 +12,7 @@ import { writeJsonReport } from "../report/json.js";
 import { renderMarkdownReport } from "../report/markdown.js";
 import { renderHtmlReport } from "../report/html.js";
 import { renderFixQueue } from "../report/fix-queue.js";
-import { loadCredentialValues } from "../safety/credential-store.js";
+import { loadCredentialBundle } from "../safety/credential-store.js";
 import { scanTextForSecrets } from "../safety/secrets-scan.js";
 import { cloneRepo } from "../repo/clone.js";
 import { detectProject } from "../repo/detect-project.js";
@@ -94,8 +94,8 @@ export async function runAudit(args: AuditArgs): Promise<AuditResult> {
   const runId = `run_${startedAt.replace(/[-:.TZ]/g, "").slice(0, 14)}_${nanoid(6)}`;
   await fs.ensureDir(args.out);
 
-  const credentialValues = await loadCredentialValues(args.credentials);
-  const redactor = createRedactor(credentialValues);
+  const credentialBundle = await loadCredentialBundle(args.credentials);
+  const redactor = createRedactor(credentialBundle.values);
   const findings: Finding[] = [];
   const notes: string[] = [];
 
@@ -116,7 +116,8 @@ export async function runAudit(args: AuditArgs): Promise<AuditResult> {
       url: args.url,
       outDir: args.out,
       maxPages: args.maxPages,
-      redactor
+      redactor,
+      credentials: credentialBundle.hints
     });
     await fs.writeJson(path.join(args.out, "browser-evidence.json"), redactor.redactObject(browserEvidence), { spaces: 2 });
     findings.push(...findingsFromBrowserEvidence(browserEvidence));
