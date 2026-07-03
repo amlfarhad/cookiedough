@@ -26,6 +26,12 @@ describe("scoreAudit", () => {
     expect(scores.cookieDough).toBeLessThanOrEqual(40);
   });
 
+  it("caps top-level score on blocker execution failure", () => {
+    const scores = scoreAudit([finding({ severity: "blocker", category: "execution-failure" })], { urlAuditWorked: false });
+    expect(scores.cookieDough).toBeLessThanOrEqual(45);
+    expect(scores.engineeringHandoffReadiness).toBeLessThanOrEqual(35);
+  });
+
   it("returns baked verdict for clean audits", () => {
     const scores = scoreAudit([], { urlAuditWorked: true });
     expect(scores.verdict).toBe("baked");

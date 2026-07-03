@@ -49,6 +49,10 @@ export function scoreAudit(findings: Finding[], context: ScoreContext): Scores {
   if (findings.some((item) => item.category === "build-failure") && !context.urlAuditWorked) {
     customerLaunchReadiness = Math.min(customerLaunchReadiness, 45);
   }
+  if (findings.some((item) => item.category === "execution-failure" && item.severity === "blocker")) {
+    customerLaunchReadiness = Math.min(customerLaunchReadiness, 45);
+    engineeringHandoffReadiness = Math.min(engineeringHandoffReadiness, 35);
+  }
   if (context.localAppStarted === false) {
     engineeringHandoffReadiness = Math.min(engineeringHandoffReadiness, 55);
   }
@@ -68,6 +72,9 @@ export function scoreAudit(findings: Finding[], context: ScoreContext): Scores {
   engineeringHandoffReadiness = clamp(engineeringHandoffReadiness);
 
   let cookieDough = clamp((demoReadiness * 0.35) + (customerLaunchReadiness * 0.4) + (engineeringHandoffReadiness * 0.25));
+  if (findings.some((item) => item.category === "execution-failure" && item.severity === "blocker")) {
+    cookieDough = Math.min(cookieDough, 45);
+  }
   if (findings.some((item) => item.category === "secret-exposure" || item.category === "trust-safety-risk")) {
     cookieDough = Math.min(cookieDough, 40);
   }

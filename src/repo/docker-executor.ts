@@ -18,7 +18,7 @@ export function buildDockerRunArgs(repoDir: string, command: string[]): string[]
 }
 
 export async function dockerAvailable(): Promise<boolean> {
-  const result = await execa("docker", ["--version"], { reject: false }).catch(() => undefined);
+  const result = await execa("docker", ["info"], { reject: false }).catch(() => undefined);
   return Boolean(result && result.exitCode === 0);
 }
 
