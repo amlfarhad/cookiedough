@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { reportCases } from "../data/report-cases";
 import type { FindingSeverity } from "../types/audit";
 import type { ScoreLensId } from "../lib/report-view";
@@ -34,19 +35,22 @@ function FindingsHarness({ initial }: { readonly initial: ReadonlySet<FindingSev
 }
 
 describe("ReadinessLenses", () => {
-  it("activates a focused native lens button through its click event", () => {
-    let selectedLens: ScoreLensId = "overall";
-    const onSelect = (lens: ScoreLensId) => {
-      selectedLens = lens;
-    };
+  it("activates focused lens buttons with Enter and Space", async () => {
+    const user = userEvent.setup();
+    const onSelect = vi.fn<(lens: ScoreLensId) => void>();
 
     render(<ReadinessLenses selectedLens="overall" scores={reportWithFindings.scores} onSelect={onSelect} />);
 
     const demoButton = screen.getByRole("button", { name: /demo 90/i });
     demoButton.focus();
-    fireEvent.click(demoButton);
+    await user.keyboard("{Enter}");
 
-    expect(selectedLens).toBe("demo");
+    const launchButton = screen.getByRole("button", { name: /customer launch 90/i });
+    launchButton.focus();
+    await user.keyboard(" ");
+
+    expect(onSelect).toHaveBeenNthCalledWith(1, "demo");
+    expect(onSelect).toHaveBeenLastCalledWith("launch");
     expect(screen.getByRole("group", { name: "Readiness lens" })).toBeInTheDocument();
     expect(demoButton).toHaveAttribute("aria-pressed", "false");
   });
