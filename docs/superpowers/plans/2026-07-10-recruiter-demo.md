@@ -161,7 +161,7 @@ git commit -m "feat: validate imported audit reports"
 - Create: `web/src/data/report-cases.ts`
 - Create: `web/src/data/report-cases.test.ts`
 
-- [ ] **Step 1: Copy real CLI artifacts**
+- [x] **Step 1: Copy real CLI artifacts**
 
 Copy the exact `findings.json` files from these ignored local run directories:
 
@@ -173,15 +173,15 @@ Copy the exact `findings.json` files from these ignored local run directories:
 
 Replace only the self-target repo URL `.` with `https://github.com/amlfarhad/cookiedough` so the public artifact has useful target context. Preserve run ids, timestamps, commit SHA, scores, findings, and notes.
 
-- [ ] **Step 2: Write a failing provenance test**
+- [x] **Step 2: Write a failing provenance test**
 
 Define `ReportCase` with `id`, `label`, `eyebrow`, `description`, `sourceLabel`, `command`, and validated `report`. Assert that all case ids are unique, every report parses, every source label says `Verified CLI artifact`, and the three expected scores are 100, 93, and 45.
 
-- [ ] **Step 3: Implement the case manifest**
+- [x] **Step 3: Implement the case manifest**
 
 Export `reportCases` and `defaultReportCaseId`. Use labels `CookieDough self-audit`, `Deployed URL audit`, and `Isolation blocked safely`. Use exact runnable commands that correspond to each report mode and never describe the artifacts as live scans.
 
-- [ ] **Step 4: Run provenance and privacy checks**
+- [x] **Step 4: Run provenance and privacy checks**
 
 ```bash
 npm --prefix web test -- src/data/report-cases.test.ts
@@ -190,7 +190,7 @@ rg -n "/Users/|amlfarhad@|sk-[A-Za-z0-9]|gh[pousr]_[A-Za-z0-9]|BEGIN (RSA|OPENSS
 
 Expected: tests pass and the scan produces no matches.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add web/src/data
