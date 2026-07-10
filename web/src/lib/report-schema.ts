@@ -59,7 +59,7 @@ const findingSchema = z
   })
   .passthrough();
 
-const auditResultSchema = z
+const auditResultSchema: z.ZodType<AuditResult> = z
   .object({
     run: z
       .object({
@@ -92,7 +92,7 @@ const auditResultSchema = z
   .passthrough();
 
 export function parseAuditResult(input: unknown): AuditResult {
-  return auditResultSchema.parse(input) as AuditResult;
+  return auditResultSchema.parse(input);
 }
 
 export async function parseAuditFile(file: File): Promise<AuditResult> {

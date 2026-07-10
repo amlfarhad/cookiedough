@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { ZodError } from "zod";
 import {
   MAX_REPORT_BYTES,
   ReportImportError,
@@ -41,6 +42,16 @@ function makeFile(text: string, size = new TextEncoder().encode(text).byteLength
   return { size, text: vi.fn(async () => text) } as unknown as File;
 }
 
+async function captureRejection(promise: Promise<unknown>): Promise<unknown> {
+  try {
+    await promise;
+  } catch (error) {
+    return error;
+  }
+
+  throw new Error("Expected promise to reject.");
+}
+
 describe("parseAuditResult", () => {
   it("accepts a valid CLI audit report", () => {
     expect(parseAuditResult(validReport)).toEqual(validReport);
@@ -80,15 +91,19 @@ describe("parseAuditResult", () => {
 
 describe("parseAuditFile", () => {
   it("maps malformed JSON to invalid-json", async () => {
-    await expect(parseAuditFile(makeFile("{not-json"))).rejects.toMatchObject({
-      code: "invalid-json",
-    });
+    const error = await captureRejection(parseAuditFile(makeFile("{not-json")));
+
+    expect(error).toBeInstanceOf(ReportImportError);
+    expect(error).toMatchObject({ code: "invalid-json" });
+    expect((error as ReportImportError & { cause: unknown }).cause).toBeInstanceOf(SyntaxError);
   });
 
   it("maps shape-invalid JSON to invalid-report", async () => {
-    await expect(parseAuditFile(makeFile(JSON.stringify({ nope: true })))).rejects.toMatchObject({
-      code: "invalid-report",
-    });
+    const error = await captureRejection(parseAuditFile(makeFile(JSON.stringify({ nope: true }))));
+
+    expect(error).toBeInstanceOf(ReportImportError);
+    expect(error).toMatchObject({ code: "invalid-report" });
+    expect((error as ReportImportError & { cause: unknown }).cause).toBeInstanceOf(ZodError);
   });
 
   it("checks oversized files before calling file.text", async () => {
