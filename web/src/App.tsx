@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AuditOverview } from "./components/AuditOverview";
 import { CaseSelector } from "./components/CaseSelector";
 import { CopyCommandButton } from "./components/CopyCommandButton";
@@ -41,6 +41,17 @@ export default function App() {
   const [importError, setImportError] = useState<string | null>(null);
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+  const mountedRef = useRef(true);
+  const importRequestRef = useRef(0);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+      importRequestRef.current += 1;
+    };
+  }, []);
 
   const cases = [
     ...reportCases,
@@ -77,22 +88,30 @@ export default function App() {
   };
 
   const importReport = async (file: File) => {
+    const requestId = importRequestRef.current + 1;
+    importRequestRef.current = requestId;
     setImportBusy(true);
     setImportError(null);
     setImportStatus("Importing report");
 
     try {
       const report = await parseAuditFile(file);
+      if (!mountedRef.current || importRequestRef.current !== requestId) return;
+
       setImportedReport(report);
       setActiveCaseId("imported");
       setActiveReport(report);
       resetReportControls();
       setImportStatus("Imported report");
     } catch (error) {
+      if (!mountedRef.current || importRequestRef.current !== requestId) return;
+
       setImportStatus(null);
       setImportError(importErrorMessage(error));
     } finally {
-      setImportBusy(false);
+      if (mountedRef.current && importRequestRef.current === requestId) {
+        setImportBusy(false);
+      }
     }
   };
 

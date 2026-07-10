@@ -5,15 +5,20 @@ interface CopyCommandButtonProps {
   readonly onFeedback: (message: string) => void;
 }
 
-function selectCommand(element: HTMLElement): void {
+function selectCommand(element: HTMLElement): boolean {
   const selection = window.getSelection?.();
 
-  if (!selection) return;
+  if (!selection) return false;
 
-  const range = document.createRange();
-  range.selectNodeContents(element);
-  selection.removeAllRanges();
-  selection.addRange(range);
+  try {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function CopyCommandButton({ command, onFeedback }: CopyCommandButtonProps) {
@@ -27,8 +32,10 @@ export function CopyCommandButton({ command, onFeedback }: CopyCommandButtonProp
       onFeedback("Copied feedback");
     } catch {
       const commandElement = document.getElementById("cookiedough-command");
-      if (commandElement) selectCommand(commandElement);
-      onFeedback("Select the command and copy it manually");
+      const selected = commandElement ? selectCommand(commandElement) : false;
+      onFeedback(
+        selected ? "Select the command and copy it manually" : "Copy is unavailable. Select the command and copy it manually.",
+      );
     }
   };
 

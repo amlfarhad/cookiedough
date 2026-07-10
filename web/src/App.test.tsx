@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
@@ -35,6 +35,36 @@ const importedReport = {
 
 function makeFile(text: string, size = new TextEncoder().encode(text).byteLength): File {
   return { name: "report.json", type: "application/json", size, text: vi.fn(async () => text) } as unknown as File;
+}
+
+function makeRejectedFile(): File {
+  return {
+    name: "report.json",
+    type: "application/json",
+    size: 2,
+    text: vi.fn(async () => Promise.reject(new Error("Read failed"))),
+  } as unknown as File;
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((nextResolve) => {
+    resolve = nextResolve;
+  });
+
+  return { promise, resolve };
+}
+
+function makeDeferredFile(text: Promise<string>): File {
+  return { name: "report.json", type: "application/json", size: 2, text: vi.fn(() => text) } as unknown as File;
+}
+
+function spyOnStorageSetItem(storage: Storage) {
+  try {
+    return vi.spyOn(storage, "setItem");
+  } catch {
+    return vi.spyOn(Storage.prototype, "setItem");
+  }
 }
 
 function importFile(file: File): void {
@@ -156,6 +186,93 @@ describe("App", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
+  it("keeps only the latest overlapping import when reads resolve out of order", async () => {
+    const firstRead = deferred<string>();
+    const secondRead = deferred<string>();
+    const secondReport = {
+      ...importedReport,
+      run: { ...importedReport.run, id: "run_latest" },
+      target: { url: "https://latest.example.com" },
+      scores: { ...importedReport.scores, cookieDough: 88 },
+    };
+    render(<App />);
+
+    const input = screen.getByLabelText("Import report");
+    fireEvent.change(input, { target: { files: [makeDeferredFile(firstRead.promise)] } });
+    fireEvent.change(input, { target: { files: [makeDeferredFile(secondRead.promise)] } });
+
+    expect(input).toBeDisabled();
+    expect(input.parentElement).toHaveAttribute("aria-busy", "true");
+
+    await act(async () => secondRead.resolve(JSON.stringify(secondReport)));
+    expect(await screen.findByText("https://latest.example.com")).toBeInTheDocument();
+
+    await act(async () => firstRead.resolve("not-json"));
+    expect(screen.getByText("https://latest.example.com")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(input).not.toBeDisabled();
+    expect(input.parentElement).toHaveAttribute("aria-busy", "false");
+  });
+
+  it("does not update state after an import is unmounted", async () => {
+    const read = deferred<string>();
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const view = render(<App />);
+
+    importFile(makeDeferredFile(read.promise));
+    view.unmount();
+
+    await act(async () => read.resolve(JSON.stringify(importedReport)));
+
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+
+  it("keeps the import input busy until the latest request settles", async () => {
+    const read = deferred<string>();
+    render(<App />);
+
+    const input = screen.getByLabelText("Import report");
+    fireEvent.change(input, { target: { files: [makeDeferredFile(read.promise)] } });
+
+    expect(input).toBeDisabled();
+    expect(input.parentElement).toHaveAttribute("aria-busy", "true");
+
+    await act(async () => read.resolve(JSON.stringify(importedReport)));
+
+    expect(input).not.toBeDisabled();
+    expect(input.parentElement).toHaveAttribute("aria-busy", "false");
+  });
+
+  it("resets the file input after each attempt so the same file can be selected again", async () => {
+    render(<App />);
+
+    const input = screen.getByLabelText("Import report") as HTMLInputElement;
+    let inputValue = "C:\\fakepath\\report.json";
+    Object.defineProperty(input, "value", {
+      configurable: true,
+      get: () => inputValue,
+      set: (value: string) => {
+        inputValue = value;
+      },
+    });
+
+    fireEvent.change(input, { target: { files: [makeFile(JSON.stringify(importedReport))] } });
+    await screen.findByText("Imported finding");
+
+    expect(inputValue).toBe("");
+  });
+
+  it("shows a generic read error and preserves the current report when File.text rejects", async () => {
+    render(<App />);
+    selectCase("docker-required");
+
+    importFile(makeRejectedFile());
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("We could not read that file. Please try again.");
+    expect(screen.getByLabelText("Audit case")).toHaveValue("docker-required");
+    expect(screen.getByTestId("selected-score")).toHaveTextContent("45");
+  });
+
   it("announces successful clipboard copies", async () => {
     const user = userEvent.setup();
     const writeText = vi.fn(async () => undefined);
@@ -187,10 +304,38 @@ describe("App", () => {
     expect(document.getSelection()?.toString()).toContain(command.textContent ?? "");
   });
 
-  it("never persists reports or controls in browser storage", async () => {
+  it("uses the manual-copy fallback when the Clipboard API is unavailable and selection succeeds", async () => {
     const user = userEvent.setup();
-    const localStorageWrite = vi.spyOn(Storage.prototype, "setItem");
-    const sessionStorageWrite = vi.spyOn(Storage.prototype, "setItem");
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined });
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Copy command" }));
+
+    expect(screen.getByRole("status", { name: "Copy feedback" })).toHaveTextContent(
+      "Select the command and copy it manually",
+    );
+  });
+
+  it("reports unavailable copying when clipboard fallback selection cannot run", async () => {
+    const user = userEvent.setup();
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined });
+    vi.spyOn(window, "getSelection").mockReturnValue(null);
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Copy command" }));
+
+    expect(screen.getByRole("status", { name: "Copy feedback" })).toHaveTextContent(
+      "Copy is unavailable. Select the command and copy it manually.",
+    );
+  });
+
+  it("keeps imports private without storage, cookies, or network calls", async () => {
+    const user = userEvent.setup();
+    const localStorageWrite = spyOnStorageSetItem(window.localStorage);
+    const sessionStorageWrite = spyOnStorageSetItem(window.sessionStorage);
+    const fetchMock = vi.fn();
+    const initialCookie = document.cookie;
+    vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
     selectCase("docker-required");
@@ -200,5 +345,7 @@ describe("App", () => {
 
     expect(localStorageWrite).not.toHaveBeenCalled();
     expect(sessionStorageWrite).not.toHaveBeenCalled();
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(document.cookie).toBe(initialCookie);
   });
 });
