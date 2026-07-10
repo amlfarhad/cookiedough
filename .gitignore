@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .cookiedough-runs/
+.worktrees/
 coverage/
 .DS_Store
 *.log
