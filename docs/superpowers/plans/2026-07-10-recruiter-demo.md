@@ -207,11 +207,11 @@ git commit -m "feat: add verified audit case files"
 - Create: `web/src/components/FindingsPanel.tsx`
 - Create: `web/src/components/FindingsPanel.test.tsx`
 
-- [ ] **Step 1: Write failing view-model tests**
+- [x] **Step 1: Write failing view-model tests**
 
 Define four score lenses (`overall`, `demo`, `launch`, `handoff`), severity ordering (`blocker`, `high`, `medium`, `low`, `info`), score-band metadata, severity counts, and filtering. Assert that a report with no findings yields an empty list, an empty severity set yields no findings, and selected severities preserve report order.
 
-- [ ] **Step 2: Run tests and verify red**
+- [x] **Step 2: Run tests and verify red**
 
 ```bash
 npm --prefix web test -- src/lib/report-view.test.ts
@@ -219,15 +219,15 @@ npm --prefix web test -- src/lib/report-view.test.ts
 
 Expected: failure because the view helpers are not implemented.
 
-- [ ] **Step 3: Implement view helpers and components**
+- [x] **Step 3: Implement view helpers and components**
 
 `AuditOverview` renders target, mode, support, commit, run date, selected score, and verdict. `ReadinessLenses` uses an ARIA-labeled segmented control with real buttons. `FindingsPanel` renders severity-toggle buttons, `<details>` disclosures, evidence lists, recommendations, a baked state, and a filtered-empty reset action.
 
-- [ ] **Step 4: Write interaction tests**
+- [x] **Step 4: Write interaction tests**
 
 Verify keyboard-clickable lens buttons, severity filtering, finding disclosure content, the baked state, and reset behavior. Query by role and accessible name rather than CSS selectors.
 
-- [ ] **Step 5: Run tests and accessibility assertions**
+- [x] **Step 5: Run tests and accessibility assertions**
 
 ```bash
 npm --prefix web test -- src/lib/report-view.test.ts src/components/FindingsPanel.test.tsx
@@ -235,7 +235,7 @@ npm --prefix web test -- src/lib/report-view.test.ts src/components/FindingsPane
 
 Expected: all tests pass; no React `act` warnings appear.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add web/src/lib/report-view* web/src/components
