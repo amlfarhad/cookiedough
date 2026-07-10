@@ -252,11 +252,11 @@ git commit -m "feat: add interactive audit report workspace"
 - Modify: `web/src/App.tsx`
 - Create: `web/src/App.test.tsx`
 
-- [ ] **Step 1: Write failing application tests**
+- [x] **Step 1: Write failing application tests**
 
 Test the initial self-audit, case switch to the blocker report, valid JSON import, malformed JSON error, oversized-file error, preservation of the current report after an import error, and copy success feedback. Stub only `navigator.clipboard`; do not mock report parsing.
 
-- [ ] **Step 2: Run tests and verify red**
+- [x] **Step 2: Run tests and verify red**
 
 ```bash
 npm --prefix web test -- src/App.test.tsx
@@ -264,15 +264,15 @@ npm --prefix web test -- src/App.test.tsx
 
 Expected: failure because the application components do not exist.
 
-- [ ] **Step 3: Implement application state and controls**
+- [x] **Step 3: Implement application state and controls**
 
 Keep selected case, active report, selected lens, severity set, import state, and feedback in `App`. A successful import creates a temporary case labeled `Imported report`; switching back to a bundled case discards only the current view, not browser storage because no persistence exists. File input accepts `.json,application/json` and announces progress/errors through `role="status"` or `role="alert"`.
 
-- [ ] **Step 4: Implement clipboard fallback**
+- [x] **Step 4: Implement clipboard fallback**
 
 Use `navigator.clipboard.writeText` when available. If unavailable or rejected, select the visible command text and expose `Select the command and copy it manually` without throwing.
 
-- [ ] **Step 5: Run application and complete web tests**
+- [x] **Step 5: Run application and complete web tests**
 
 ```bash
 npm --prefix web test -- src/App.test.tsx
@@ -281,7 +281,7 @@ npm --prefix web test
 
 Expected: all tests pass and imported report data is not written to local storage, session storage, cookies, or network APIs.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add web/src/App* web/src/components
