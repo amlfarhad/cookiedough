@@ -46,7 +46,7 @@ export function CopyCommandButton({ command, onFeedback }: CopyCommandButtonProp
       </code>
       <button type="button" onClick={() => void copyCommand()}>
         <Copy aria-hidden="true" strokeWidth={1.75} />
-        <span>Copy command</span>
+        <span className="copy-command-button__label">Copy command</span>
       </button>
     </div>
   );

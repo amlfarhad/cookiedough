@@ -11,7 +11,8 @@ import {
 const stages = [
   {
     title: "Repo intake",
-    detail: "Node web repositories and package scripts first, with the selected target recorded in the report.",
+    detail:
+      "Strongest on Node web repositories. React, Next.js, and Vite projects are covered through package-script discovery, not framework-specific analysis.",
     Icon: PackageSearch,
   },
   {
@@ -21,7 +22,8 @@ const stages = [
   },
   {
     title: "Browser evidence",
-    detail: "Playwright records console, network, accessibility, and interaction evidence from the audited application.",
+    detail:
+      "Playwright records pages and screenshots, console and network signals, safe form interactions, and inert controls.",
     Icon: MonitorCheck,
   },
   {
@@ -42,12 +44,14 @@ export function ExecutionProof() {
       <header className="section-heading">
         <p className="section-kicker">Execution model / 05 stages</p>
         <h2 id="execution-proof-title">From repository to portable evidence</h2>
-        <p>Each stage leaves inspectable output. Coverage boundaries stay attached to the report.</p>
+        <p className="section-heading__description">
+          Each stage leaves inspectable output. Coverage boundaries stay attached to the report.
+        </p>
       </header>
 
       <ol className="execution-proof__stages">
         {stages.map(({ title, detail, Icon }, index) => (
-          <li key={title}>
+          <li className={index > 2 ? "execution-proof__stage execution-proof__stage--wide" : "execution-proof__stage"} key={title}>
             <span className="execution-proof__index">{String(index + 1).padStart(2, "0")}</span>
             <Icon aria-hidden="true" strokeWidth={1.75} />
             <div>

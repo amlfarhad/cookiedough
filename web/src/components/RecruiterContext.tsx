@@ -20,7 +20,7 @@ export function RecruiterContext() {
       <div className="recruiter-context__lead">
         <p className="section-kicker">Engineering context / current build</p>
         <h2 id="recruiter-context-title">Built by Amal Farhad</h2>
-        <p>
+        <p className="recruiter-context__description">
           TypeScript product engineering across a CLI, Playwright browser evidence, Vitest verification, and explicit
           Docker execution boundaries.
         </p>
@@ -33,7 +33,7 @@ export function RecruiterContext() {
         </div>
         <div>
           <dt>Web verification</dt>
-          <dd><strong>64 web tests</strong><span>Report viewer and import workflow</span></dd>
+          <dd><strong>70 web tests</strong><span>Report viewer and import workflow</span></dd>
         </div>
       </dl>
 
@@ -42,7 +42,7 @@ export function RecruiterContext() {
           <a key={label} href={href} rel="noreferrer">
             <Icon aria-hidden="true" strokeWidth={1.75} />
             <span>{label}</span>
-            <ExternalLink aria-hidden="true" strokeWidth={1.75} />
+            <ExternalLink className="recruiter-context__external-icon" aria-hidden="true" strokeWidth={1.75} />
           </a>
         ))}
       </nav>

@@ -86,6 +86,7 @@ export default function App() {
     setActiveReport(selectedCase.report);
     setImportError(null);
     setImportStatus(null);
+    setCopyFeedback(null);
     resetReportControls();
   };
 
@@ -95,6 +96,7 @@ export default function App() {
     setImportBusy(true);
     setImportError(null);
     setImportStatus("Importing report");
+    setCopyFeedback(null);
 
     try {
       const report = await parseAuditFile(file);
@@ -115,6 +117,12 @@ export default function App() {
         setImportBusy(false);
       }
     }
+  };
+
+  const showCopyFeedback = (message: string) => {
+    setImportError(null);
+    setImportStatus(null);
+    setCopyFeedback(message);
   };
 
   return (
@@ -150,11 +158,11 @@ export default function App() {
           </div>
 
           <section className="command-strip" aria-label="Command and provenance">
-            <div>
+            <div className="command-strip__label">
               <span>Execution provenance</span>
               <strong>Reproduce this evidence</strong>
             </div>
-            <CopyCommandButton command={activeCase.command} onFeedback={setCopyFeedback} />
+            <CopyCommandButton command={activeCase.command} onFeedback={showCopyFeedback} />
           </section>
 
           <FindingsPanel
@@ -170,10 +178,10 @@ export default function App() {
             }}
             onResetFilters={() => setSelectedSeverities(allSeverities())}
           />
-        </main>
 
-        <ExecutionProof />
-        <RecruiterContext />
+          <ExecutionProof />
+          <RecruiterContext />
+        </main>
 
         <footer className="site-footer">
           <strong>Viewer, not scanner.</strong>

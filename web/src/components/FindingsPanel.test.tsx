@@ -8,6 +8,7 @@ import type { ScoreLensId } from "../lib/report-view";
 import { AuditOverview } from "./AuditOverview";
 import { FindingsPanel } from "./FindingsPanel";
 import { ReadinessLenses } from "./ReadinessLenses";
+import { ImportReportButton } from "./ImportReportButton";
 
 const reportWithFindings = reportCases[1]!.report;
 const emptyReport = reportCases[0]!.report;
@@ -73,6 +74,20 @@ describe("ReadinessLenses", () => {
   });
 });
 
+describe("ImportReportButton", () => {
+  it("keeps the hidden input focus associated with its visible label surface", () => {
+    render(<ImportReportButton busy={false} onSelectFile={async () => undefined} />);
+
+    const input = screen.getByLabelText("Import report");
+    const surface = input.parentElement;
+    input.focus();
+
+    expect(input).toHaveFocus();
+    expect(surface).toHaveClass("import-report-button");
+    expect(surface?.querySelector("label")).toHaveAttribute("for", input.id);
+  });
+});
+
 describe("AuditOverview", () => {
   it("renders the selected score alongside audit context", () => {
     render(<AuditOverview report={reportWithFindings} selectedLens="launch" />);
@@ -83,6 +98,9 @@ describe("AuditOverview", () => {
     expect(screen.getByText("Customer launch")).toBeInTheDocument();
     expect(screen.getByTestId("selected-score")).toHaveTextContent(String(reportWithFindings.scores.customerLaunchReadiness));
     expect(screen.getByText(reportWithFindings.scores.verdict)).toBeInTheDocument();
+    const targetHeading = screen.getByRole("heading", { name: reportWithFindings.target.url! });
+    expect(targetHeading).toHaveTextContent(reportWithFindings.target.url!);
+    expect(targetHeading.querySelectorAll("wbr").length).toBeGreaterThan(0);
   });
 
   it("shows a date fallback for an invalid run timestamp", () => {
@@ -104,6 +122,11 @@ describe("FindingsPanel", () => {
     const mediumButton = screen.getByRole("button", { name: /medium: 1/i });
     expect(mediumButton).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByText(reportWithFindings.findings[0]!.title)).toBeInTheDocument();
+    const summary = screen.getByText(reportWithFindings.findings[0]!.title).closest("summary");
+    const details = summary?.closest("details");
+    const disclosureIcon = summary?.querySelector("[data-disclosure-icon]");
+    expect(disclosureIcon).toHaveAttribute("aria-hidden", "true");
+    expect(details).not.toHaveAttribute("open");
     expect(screen.getByText("1 finding shown")).toHaveAttribute("aria-live", "polite");
 
     fireEvent.click(mediumButton);
@@ -114,7 +137,8 @@ describe("FindingsPanel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /reset filters/i }));
 
-    fireEvent.click(screen.getByText(reportWithFindings.findings[0]!.title));
+    details!.open = true;
+    expect(details).toHaveAttribute("open");
     expect(screen.getByText(reportWithFindings.findings[0]!.id)).toBeInTheDocument();
     expect(screen.getByText(reportWithFindings.findings[0]!.description)).toBeInTheDocument();
     expect(screen.getByText("Recommendation").parentElement).toHaveTextContent(reportWithFindings.findings[0]!.recommendation);

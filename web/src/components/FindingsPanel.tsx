@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { ChevronDown } from "lucide-react";
 import type { ReportCase } from "../data/report-cases";
 import { getSeverityCounts, severityOrder } from "../lib/report-view";
 import type { FindingSeverity } from "../types/audit";
@@ -70,10 +71,16 @@ export function FindingsPanel({
           {filteredFindings.map(({ finding, reportIndex }) => (
             <details className="findings-panel__finding" data-severity={finding.severity} key={`${finding.id}-${reportIndex}`}>
               <summary>
-                <span>{finding.id}</span>
-                <span>{finding.severity}</span>
-                <span>{finding.category}</span>
-                <strong>{finding.title}</strong>
+                <span className="finding-summary__id">{finding.id}</span>
+                <span className="finding-summary__severity">{finding.severity}</span>
+                <span className="finding-summary__category">{finding.category}</span>
+                <strong className="finding-summary__title">{finding.title}</strong>
+                <ChevronDown
+                  className="finding-summary__icon"
+                  data-disclosure-icon
+                  aria-hidden="true"
+                  strokeWidth={1.75}
+                />
               </summary>
               <div className="findings-panel__finding-body">
                 <p>{finding.description}</p>

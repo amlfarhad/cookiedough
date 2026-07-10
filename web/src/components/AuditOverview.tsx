@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { Fragment, useId } from "react";
 import type { ReportCase } from "../data/report-cases";
 import { getScoreForLens, scoreLenses } from "../lib/report-view";
 import type { ScoreLensId } from "../lib/report-view";
@@ -6,6 +6,17 @@ import type { ScoreLensId } from "../lib/report-view";
 interface AuditOverviewProps {
   readonly report: ReportCase["report"];
   readonly selectedLens: ScoreLensId;
+}
+
+function BreakableTarget({ value }: { readonly value: string }) {
+  const parts = value.split(/([/:?&#=])/g);
+
+  return parts.map((part, index) => (
+    <Fragment key={`${part}-${index}`}>
+      {part}
+      {/[/:?&#=]/.test(part) ? <wbr /> : null}
+    </Fragment>
+  ));
 }
 
 function formatRunDate(startedAt: string): string {
@@ -31,7 +42,7 @@ export function AuditOverview({ report, selectedLens }: AuditOverviewProps) {
   return (
     <section className="audit-overview" aria-labelledby={headingId}>
       <p className="audit-overview__eyebrow">Selected audit / evidence record</p>
-      <h2 id={headingId}>{target}</h2>
+      <h2 id={headingId} aria-label={target}><BreakableTarget value={target} /></h2>
       <dl className="audit-overview__metadata">
         <div>
           <dt>Audit mode</dt>
@@ -53,10 +64,10 @@ export function AuditOverview({ report, selectedLens }: AuditOverviewProps) {
         </div>
       </dl>
       <div className="audit-overview__selected-score" data-verdict={report.scores.verdict}>
-        <p>{selectedLensMetadata.label}</p>
+        <p className="audit-score__label">{selectedLensMetadata.label}</p>
         <output data-testid="selected-score">{selectedScore}</output>
-        <p>{selectedLensMetadata.description}</p>
-        <p>{report.scores.verdict}</p>
+        <p className="audit-score__description">{selectedLensMetadata.description}</p>
+        <p className="audit-score__verdict">{report.scores.verdict}</p>
       </div>
     </section>
   );

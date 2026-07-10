@@ -104,6 +104,11 @@ describe("App", () => {
       "href",
       "https://github.com/amlfarhad/cookiedough",
     );
+    for (const link of screen.getAllByRole("link")) {
+      if (link.getAttribute("href")?.startsWith("https://")) {
+        expect(link).toHaveAttribute("rel", expect.stringContaining("noreferrer"));
+      }
+    }
     expect(screen.getByRole("heading", { name: "From repository to portable evidence" })).toBeInTheDocument();
     for (const stage of [
       "Repo intake",
@@ -115,9 +120,11 @@ describe("App", () => {
       expect(screen.getByRole("heading", { name: stage })).toBeInTheDocument();
     }
     expect(screen.getByText(/Docker is preferred for repository execution/i)).toBeInTheDocument();
-    expect(screen.getByText(/Node web repositories and package scripts first/i)).toBeInTheDocument();
+    expect(screen.getByText(/strongest on Node web repositories/i)).toBeInTheDocument();
+    expect(screen.getByText(/React, Next\.js, and Vite projects are covered through package-script discovery/i)).toBeInTheDocument();
+    expect(screen.queryByText(/accessibility evidence/i)).not.toBeInTheDocument();
     expect(screen.getByText("25 CLI tests")).toBeInTheDocument();
-    expect(screen.getByText("64 web tests")).toBeInTheDocument();
+    expect(screen.getByText("70 web tests")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Architecture" })).toHaveAttribute(
       "href",
       "https://github.com/amlfarhad/cookiedough/blob/main/docs/architecture.md",
@@ -127,6 +134,11 @@ describe("App", () => {
       "https://github.com/amlfarhad/cookiedough/blob/main/docs/safety.md",
     );
     expect(screen.getByText(/hosted page is a report viewer/i)).toBeInTheDocument();
+
+    const main = screen.getByRole("main");
+    expect(main).toContainElement(screen.getByRole("heading", { name: "From repository to portable evidence" }));
+    expect(main).toContainElement(screen.getByRole("heading", { name: "Built by Amal Farhad" }));
+    expect(main).not.toContainElement(screen.getByText(/hosted page is a report viewer/i));
   });
 
   it("switches bundled cases and renders the safely blocked isolation score", () => {
@@ -319,6 +331,40 @@ describe("App", () => {
 
     expect(writeText).toHaveBeenCalledWith(command.textContent);
     expect(screen.getByRole("status", { name: "Copy feedback" })).toHaveTextContent("Command copied");
+  });
+
+  it("shows only the newest feedback when copy follows an import error", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    importFile(makeFile("not-json"));
+    expect(await screen.findByRole("alert")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Copy command" }));
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.queryByRole("status", { name: "Import feedback" })).not.toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Copy feedback" })).toHaveTextContent("Command copied");
+  });
+
+  it("clears copy feedback when a newer import or case selection begins", async () => {
+    const user = userEvent.setup();
+    const read = deferred<string>();
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: "Copy command" }));
+    expect(screen.getByRole("status", { name: "Copy feedback" })).toBeInTheDocument();
+
+    importFile(makeDeferredFile(read.promise));
+    expect(screen.queryByRole("status", { name: "Copy feedback" })).not.toBeInTheDocument();
+    expect(screen.getByRole("status", { name: "Import feedback" })).toHaveTextContent("Importing report");
+
+    await act(async () => read.resolve(JSON.stringify(importedReport)));
+    await screen.findByText("Imported finding");
+    await user.click(screen.getByRole("button", { name: "Copy command" }));
+    selectCase("self-audit");
+
+    expect(screen.queryByRole("status", { name: "Copy feedback" })).not.toBeInTheDocument();
   });
 
   it("selects the command and gives manual-copy feedback when clipboard access is rejected", async () => {

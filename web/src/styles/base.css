@@ -1,0 +1,83 @@
+@import "@fontsource-variable/archivo";
+@import "@fontsource-variable/jetbrains-mono";
+
+:root {
+  --paper: #f4efe5;
+  --paper-deep: #e7dece;
+  --surface: #fffdf8;
+  --ink: #20201d;
+  --muted: #68645e;
+  --rule: #c9c0b1;
+  --accent: #b44a32;
+  --green: #496b50;
+  --blue: #356178;
+  --amber: #8a6a24;
+  --sans: "Archivo Variable", "Avenir Next", Avenir, "Helvetica Neue", sans-serif;
+  --mono: "JetBrains Mono Variable", "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  color: var(--ink);
+  background: var(--paper-deep);
+  font-family: var(--sans);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  letter-spacing: 0;
+}
+
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--paper-deep);
+  color: var(--ink);
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+button,
+select,
+a,
+label[for] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+p,
+h1,
+h2,
+h3,
+dl,
+dd,
+ol,
+ul {
+  margin: 0;
+}
+
+svg {
+  flex: 0 0 auto;
+}
+
+:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
