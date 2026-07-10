@@ -65,6 +65,13 @@ describe("report view helpers", () => {
     expect(getScoreBand(score)).toMatchObject({ verdict });
   });
 
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, -1, 101])(
+    "rejects invalid score %p",
+    (score) => {
+      expect(() => getScoreBand(score)).toThrow(RangeError);
+    },
+  );
+
   it("keeps severity order from blocker through info", () => {
     expect(severityOrder).toEqual(["blocker", "high", "medium", "low", "info"]);
   });

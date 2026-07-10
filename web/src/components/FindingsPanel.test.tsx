@@ -34,25 +34,42 @@ function FindingsHarness({ initial }: { readonly initial: ReadonlySet<FindingSev
   );
 }
 
+function ReadinessHarness({ onSelect }: { readonly onSelect: (lens: ScoreLensId) => void }) {
+  const [selectedLens, setSelectedLens] = useState<ScoreLensId>("overall");
+
+  return (
+    <ReadinessLenses
+      selectedLens={selectedLens}
+      scores={reportWithFindings.scores}
+      onSelect={(lens) => {
+        onSelect(lens);
+        setSelectedLens(lens);
+      }}
+    />
+  );
+}
+
 describe("ReadinessLenses", () => {
   it("activates focused lens buttons with Enter and Space", async () => {
     const user = userEvent.setup();
     const onSelect = vi.fn<(lens: ScoreLensId) => void>();
 
-    render(<ReadinessLenses selectedLens="overall" scores={reportWithFindings.scores} onSelect={onSelect} />);
+    render(<ReadinessHarness onSelect={onSelect} />);
 
     const demoButton = screen.getByRole("button", { name: /demo 90/i });
     demoButton.focus();
     await user.keyboard("{Enter}");
+    expect(onSelect).toHaveBeenNthCalledWith(1, "demo");
+    expect(demoButton).toHaveAttribute("aria-pressed", "true");
 
     const launchButton = screen.getByRole("button", { name: /customer launch 90/i });
     launchButton.focus();
     await user.keyboard(" ");
 
-    expect(onSelect).toHaveBeenNthCalledWith(1, "demo");
     expect(onSelect).toHaveBeenLastCalledWith("launch");
-    expect(screen.getByRole("group", { name: "Readiness lens" })).toBeInTheDocument();
     expect(demoButton).toHaveAttribute("aria-pressed", "false");
+    expect(launchButton).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("group", { name: "Readiness lens" })).toBeInTheDocument();
   });
 });
 
@@ -67,6 +84,17 @@ describe("AuditOverview", () => {
     expect(screen.getByTestId("selected-score")).toHaveTextContent(String(reportWithFindings.scores.customerLaunchReadiness));
     expect(screen.getByText(reportWithFindings.scores.verdict)).toBeInTheDocument();
   });
+
+  it("shows a date fallback for an invalid run timestamp", () => {
+    render(
+      <AuditOverview
+        report={{ ...reportWithFindings, run: { ...reportWithFindings.run, startedAt: "not-a-date" } }}
+        selectedLens="overall"
+      />,
+    );
+
+    expect(screen.getByText("Date unavailable")).toBeInTheDocument();
+  });
 });
 
 describe("FindingsPanel", () => {
@@ -76,11 +104,13 @@ describe("FindingsPanel", () => {
     const mediumButton = screen.getByRole("button", { name: /medium: 1/i });
     expect(mediumButton).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByText(reportWithFindings.findings[0]!.title)).toBeInTheDocument();
+    expect(screen.getByText("1 finding shown")).toHaveAttribute("aria-live", "polite");
 
     fireEvent.click(mediumButton);
 
     expect(mediumButton).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByText(/No findings match the selected severities/i)).toBeInTheDocument();
+    expect(screen.getByText("0 findings shown")).toHaveAttribute("aria-live", "polite");
 
     fireEvent.click(screen.getByRole("button", { name: /reset filters/i }));
 
@@ -110,5 +140,25 @@ describe("FindingsPanel", () => {
 
     expect(screen.getByText(/No findings match the selected severities/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /reset filters/i })).toBeInTheDocument();
+  });
+
+  it("renders duplicate finding IDs without a React duplicate-key warning", () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const duplicatedFindings = [
+      reportWithFindings.findings[0]!,
+      { ...reportWithFindings.findings[0]!, title: "Repeated imported finding" },
+    ];
+
+    render(
+      <FindingsPanel
+        findings={duplicatedFindings}
+        selectedSeverities={new Set(["medium"])}
+        onToggleSeverity={() => undefined}
+        onResetFilters={() => undefined}
+      />,
+    );
+
+    expect(screen.getByText("Repeated imported finding")).toBeInTheDocument();
+    expect(consoleError.mock.calls.some(([message]) => String(message).includes("same key"))).toBe(false);
   });
 });

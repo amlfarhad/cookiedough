@@ -74,6 +74,10 @@ export function getScoreForLens(scores: ReadonlyScores, lensId: ScoreLensId): nu
 }
 
 export function getScoreBand(score: number): ScoreBand {
+  if (!Number.isFinite(score) || score < 0 || score > 100) {
+    throw new RangeError("Score must be a finite number between 0 and 100.");
+  }
+
   return scoreBands.find((band) => score >= band.minimum)!;
 }
 

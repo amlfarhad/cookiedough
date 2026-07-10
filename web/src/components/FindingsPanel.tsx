@@ -1,5 +1,6 @@
+import { useId } from "react";
 import type { ReportCase } from "../data/report-cases";
-import { filterFindings, getSeverityCounts, severityOrder } from "../lib/report-view";
+import { getSeverityCounts, severityOrder } from "../lib/report-view";
 import type { FindingSeverity } from "../types/audit";
 
 interface FindingsPanelProps {
@@ -15,15 +16,19 @@ export function FindingsPanel({
   onToggleSeverity,
   onResetFilters,
 }: FindingsPanelProps) {
+  const headingId = useId();
   const severityCounts = getSeverityCounts(findings);
-  const filteredFindings = filterFindings(findings, selectedSeverities);
+  const filteredFindings = findings
+    .map((finding, reportIndex) => ({ finding, reportIndex }))
+    .filter(({ finding }) => selectedSeverities.has(finding.severity));
   const hasOriginalFindings = findings.length > 0;
+  const resultCountText = `${filteredFindings.length} ${filteredFindings.length === 1 ? "finding" : "findings"} shown`;
 
   return (
-    <section className="findings-panel" aria-labelledby="findings-heading">
+    <section className="findings-panel" aria-labelledby={headingId}>
       <header className="findings-panel__header">
         <p className="findings-panel__eyebrow">Audit evidence</p>
-        <h2 id="findings-heading">Findings</h2>
+        <h2 id={headingId}>Findings</h2>
       </header>
 
       <div className="findings-panel__filters" role="group" aria-label="Severity filters">
@@ -47,6 +52,10 @@ export function FindingsPanel({
         })}
       </div>
 
+      <p className="findings-panel__result-count" aria-live="polite">
+        {resultCountText}
+      </p>
+
       {!hasOriginalFindings ? (
         <p className="findings-panel__empty">No findings were recorded in this audit. The report is baked.</p>
       ) : filteredFindings.length === 0 ? (
@@ -58,8 +67,8 @@ export function FindingsPanel({
         </div>
       ) : (
         <div className="findings-panel__list">
-          {filteredFindings.map((finding) => (
-            <details className="findings-panel__finding" key={finding.id}>
+          {filteredFindings.map(({ finding, reportIndex }) => (
+            <details className="findings-panel__finding" key={`${finding.id}-${reportIndex}`}>
               <summary>
                 <span>{finding.id}</span>
                 <span>{finding.severity}</span>
