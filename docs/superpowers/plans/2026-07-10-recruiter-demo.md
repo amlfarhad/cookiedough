@@ -297,23 +297,23 @@ git commit -m "feat: add private report import and case controls"
 - Modify: `web/src/styles.css`
 - Modify: `web/index.html`
 
-- [ ] **Step 1: Add concrete product proof content**
+- [x] **Step 1: Add concrete product proof content**
 
 Render the five-stage execution pipeline, deterministic evidence rule, Docker boundary, redaction behavior, current Node/React/Next/Vite support, and the exact automated verification counts. Include links to the GitHub repository, architecture document, safety document, and Amal's GitHub profile. Every link must have a real destination and external links must use `rel="noreferrer"`.
 
-- [ ] **Step 2: Implement the visual system**
+- [x] **Step 2: Implement the visual system**
 
 Use warm paper `#f4efe5`, ink `#20201d`, surface `#fffdf8`, rule `#c9c0b1`, and baked-red `#b44a32` tokens. Use one sans display/body family and a monospace evidence family loaded through reliable font files or a robust local stack. Build an asymmetric desktop score/workspace grid, strict mobile single column, 8 px maximum interactive-card radius, stable score dimensions, and no decorative gradient/orb effects.
 
-- [ ] **Step 3: Add restrained motion**
+- [x] **Step 3: Add restrained motion**
 
 Use CSS transform/opacity entrance sequencing, score value transitions, disclosure affordances, and tactile button feedback. Add a complete `prefers-reduced-motion: reduce` override and avoid infinite animation.
 
-- [ ] **Step 4: Harden long and narrow content**
+- [x] **Step 4: Harden long and narrow content**
 
 Add `overflow-wrap: anywhere` for URLs and paths, bounded horizontal scrolling for commands, stable grid tracks, 44 px touch targets, visible focus, print-friendly colors, and no page-level horizontal overflow at 320 px.
 
-- [ ] **Step 5: Verify static quality**
+- [x] **Step 5: Verify static quality**
 
 ```bash
 npm --prefix web run typecheck
@@ -324,7 +324,7 @@ npm --prefix web run build
 
 Expected: all commands exit 0.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add web/src web/index.html
