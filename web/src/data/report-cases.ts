@@ -4,21 +4,40 @@ import dockerRequiredReport from "./reports/docker-required.json";
 import selfAuditReport from "./reports/self-audit.json";
 import urlAuditReport from "./reports/url-audit.json";
 
+type DeepReadonly<T> = T extends (...args: never[]) => unknown
+  ? T
+  : T extends object
+    ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+    : T;
+
+function deepFreeze<T>(value: T): DeepReadonly<T> {
+  if (value !== null && typeof value === "object" && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const child of Object.values(value as Record<string, unknown>)) {
+      deepFreeze(child);
+    }
+  }
+
+  return value as DeepReadonly<T>;
+}
+
+export type ReportCaseId = "self-audit" | "url-audit" | "docker-required";
+
 export interface ReportCase {
-  id: string;
-  label: string;
-  eyebrow: string;
-  description: string;
-  sourceLabel: string;
-  command: string;
-  report: AuditResult;
+  readonly id: ReportCaseId;
+  readonly label: string;
+  readonly eyebrow: string;
+  readonly description: string;
+  readonly sourceLabel: string;
+  readonly command: string;
+  readonly report: DeepReadonly<AuditResult>;
 }
 
 const selfAudit = parseAuditResult(selfAuditReport);
 const urlAudit = parseAuditResult(urlAuditReport);
 const dockerRequired = parseAuditResult(dockerRequiredReport);
 
-export const reportCases: ReportCase[] = [
+export const reportCases = deepFreeze([
   {
     id: "self-audit",
     label: "CookieDough self-audit",
@@ -46,6 +65,6 @@ export const reportCases: ReportCase[] = [
     command: "node dist/src/cli/index.js audit --repo . --docker required --out .cookiedough-runs/docker-required --json",
     report: dockerRequired,
   },
-];
+] satisfies readonly ReportCase[]);
 
-export const defaultReportCaseId: ReportCase["id"] = "self-audit";
+export const defaultReportCaseId: ReportCaseId = "self-audit";
