@@ -46,7 +46,7 @@
 - Create: `web/src/test/setup.ts`
 - Create: `web/src/styles.css`
 
-- [ ] **Step 1: Create package and toolchain files**
+- [x] **Step 1: Create package and toolchain files**
 
 Use a private ESM package with these scripts:
 
@@ -69,7 +69,7 @@ Use a private ESM package with these scripts:
 
 Configure Vite with React, `@tailwindcss/vite`, and Vitest using `jsdom`, `src/test/setup.ts`, restored mocks, and CSS enabled. Configure TypeScript with strict mode, `noUncheckedIndexedAccess`, `noFallthroughCasesInSwitch`, and `verbatimModuleSyntax`.
 
-- [ ] **Step 2: Install exact dependency categories**
+- [x] **Step 2: Install exact dependency categories**
 
 Run:
 
@@ -80,11 +80,11 @@ npm install --prefix web --save-dev typescript vite @vitejs/plugin-react tailwin
 
 Expected: `web/package-lock.json` is created and `npm audit` reports no unresolved high or critical vulnerabilities.
 
-- [ ] **Step 3: Add a smoke entry point**
+- [x] **Step 3: Add a smoke entry point**
 
 Create `main.tsx` that mounts `<App />` inside `StrictMode`. The initial `App.tsx` exports a semantic `<main>` containing the `CookieDough` heading and `Evidence-first readiness auditor` copy, giving the first build a complete render path before feature components arrive. Create `styles.css` with `@import "tailwindcss";`, base design tokens, `box-sizing`, body defaults, focus-visible treatment, and reduced-motion overrides.
 
-- [ ] **Step 4: Verify the package boundary**
+- [x] **Step 4: Verify the package boundary**
 
 Run:
 
@@ -96,7 +96,7 @@ npm --prefix web run build
 
 Expected: all commands exit 0 and `web/dist/index.html` exists without changing root `tsconfig.json` includes.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add web
