@@ -30,7 +30,7 @@ export function AuditOverview({ report, selectedLens }: AuditOverviewProps) {
 
   return (
     <section className="audit-overview" aria-labelledby={headingId}>
-      <p className="audit-overview__eyebrow">Audit report</p>
+      <p className="audit-overview__eyebrow">Selected audit / evidence record</p>
       <h2 id={headingId}>{target}</h2>
       <dl className="audit-overview__metadata">
         <div>
@@ -52,7 +52,7 @@ export function AuditOverview({ report, selectedLens }: AuditOverviewProps) {
           <dd>{formatRunDate(report.run.startedAt)}</dd>
         </div>
       </dl>
-      <div className="audit-overview__selected-score">
+      <div className="audit-overview__selected-score" data-verdict={report.scores.verdict}>
         <p>{selectedLensMetadata.label}</p>
         <output data-testid="selected-score">{selectedScore}</output>
         <p>{selectedLensMetadata.description}</p>

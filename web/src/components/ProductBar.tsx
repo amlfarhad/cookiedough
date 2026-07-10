@@ -8,15 +8,15 @@ interface ProductBarProps {
 export function ProductBar({ children }: ProductBarProps) {
   return (
     <header className="product-bar">
-      <div>
+      <div className="product-bar__identity">
         <h1>CookieDough</h1>
         <p>Evidence-first readiness auditor</p>
       </div>
       <nav aria-label="Product links">
-        <a href="https://github.com/amlfarhad" rel="noreferrer">
+        <a className="product-bar__maker" href="https://github.com/amlfarhad" rel="noreferrer">
           Built by Amal Farhad
         </a>
-        <a href="https://github.com/amlfarhad/cookiedough" rel="noreferrer">
+        <a className="icon-action" href="https://github.com/amlfarhad/cookiedough" rel="noreferrer">
           <Github aria-hidden="true" strokeWidth={1.75} />
           <span>View CookieDough on GitHub</span>
         </a>

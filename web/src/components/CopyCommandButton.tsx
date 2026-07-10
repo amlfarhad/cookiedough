@@ -29,7 +29,7 @@ export function CopyCommandButton({ command, onFeedback }: CopyCommandButtonProp
       }
 
       await navigator.clipboard.writeText(command);
-      onFeedback("Copied feedback");
+      onFeedback("Command copied");
     } catch {
       const commandElement = document.getElementById("cookiedough-command");
       const selected = commandElement ? selectCommand(commandElement) : false;

@@ -104,6 +104,29 @@ describe("App", () => {
       "href",
       "https://github.com/amlfarhad/cookiedough",
     );
+    expect(screen.getByRole("heading", { name: "From repository to portable evidence" })).toBeInTheDocument();
+    for (const stage of [
+      "Repo intake",
+      "Isolated command execution",
+      "Browser evidence",
+      "Deterministic findings and scoring",
+      "Portable reports",
+    ]) {
+      expect(screen.getByRole("heading", { name: stage })).toBeInTheDocument();
+    }
+    expect(screen.getByText(/Docker is preferred for repository execution/i)).toBeInTheDocument();
+    expect(screen.getByText(/Node web repositories and package scripts first/i)).toBeInTheDocument();
+    expect(screen.getByText("25 CLI tests")).toBeInTheDocument();
+    expect(screen.getByText("64 web tests")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Architecture" })).toHaveAttribute(
+      "href",
+      "https://github.com/amlfarhad/cookiedough/blob/main/docs/architecture.md",
+    );
+    expect(screen.getByRole("link", { name: "Safety model" })).toHaveAttribute(
+      "href",
+      "https://github.com/amlfarhad/cookiedough/blob/main/docs/safety.md",
+    );
+    expect(screen.getByText(/hosted page is a report viewer/i)).toBeInTheDocument();
   });
 
   it("switches bundled cases and renders the safely blocked isolation score", () => {
@@ -295,7 +318,7 @@ describe("App", () => {
     await user.click(screen.getByRole("button", { name: "Copy command" }));
 
     expect(writeText).toHaveBeenCalledWith(command.textContent);
-    expect(screen.getByRole("status", { name: "Copy feedback" })).toHaveTextContent("Copied feedback");
+    expect(screen.getByRole("status", { name: "Copy feedback" })).toHaveTextContent("Command copied");
   });
 
   it("selects the command and gives manual-copy feedback when clipboard access is rejected", async () => {

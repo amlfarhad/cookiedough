@@ -27,7 +27,7 @@ export function FindingsPanel({
   return (
     <section className="findings-panel" aria-labelledby={headingId}>
       <header className="findings-panel__header">
-        <p className="findings-panel__eyebrow">Audit evidence</p>
+        <p className="findings-panel__eyebrow">Audit evidence / inspect each record</p>
         <h2 id={headingId}>Findings</h2>
       </header>
 
@@ -68,7 +68,7 @@ export function FindingsPanel({
       ) : (
         <div className="findings-panel__list">
           {filteredFindings.map(({ finding, reportIndex }) => (
-            <details className="findings-panel__finding" key={`${finding.id}-${reportIndex}`}>
+            <details className="findings-panel__finding" data-severity={finding.severity} key={`${finding.id}-${reportIndex}`}>
               <summary>
                 <span>{finding.id}</span>
                 <span>{finding.severity}</span>

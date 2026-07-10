@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { AuditOverview } from "./components/AuditOverview";
 import { CaseSelector } from "./components/CaseSelector";
 import { CopyCommandButton } from "./components/CopyCommandButton";
+import { ExecutionProof } from "./components/ExecutionProof";
 import { FindingsPanel } from "./components/FindingsPanel";
 import { ImportReportButton } from "./components/ImportReportButton";
 import { ProductBar } from "./components/ProductBar";
 import { ReadinessLenses } from "./components/ReadinessLenses";
+import { RecruiterContext } from "./components/RecruiterContext";
 import { defaultReportCaseId, reportCases } from "./data/report-cases";
 import { ReportImportError, parseAuditFile } from "./lib/report-schema";
 import { severityOrder } from "./lib/report-view";
@@ -60,7 +62,7 @@ export default function App() {
           {
             id: "imported",
             label: "Imported report",
-            eyebrow: "Private browser import",
+            eyebrow: "Local report",
             description: "A report loaded only in this browser tab.",
             sourceLabel: "Private browser import",
             command: "Imported from a local JSON file",
@@ -116,48 +118,68 @@ export default function App() {
   };
 
   return (
-    <main>
-      <ProductBar>
-        <ImportReportButton busy={importBusy} onSelectFile={importReport} />
-      </ProductBar>
+    <>
+      <a className="skip-link" href="#audit-workspace">Skip to audit workspace</a>
+      <div className="app-shell">
+        <ProductBar>
+          <ImportReportButton busy={importBusy} onSelectFile={importReport} />
+        </ProductBar>
 
-      {importError ? <p role="alert">{importError}</p> : null}
-      {importStatus ? (
-        <p role="status" aria-label="Import feedback">
-          {importStatus}
-        </p>
-      ) : null}
-      {copyFeedback ? (
-        <p role="status" aria-label="Copy feedback">
-          {copyFeedback}
-        </p>
-      ) : null}
+        <div className="feedback-rail" aria-live="polite">
+          {importError ? <p className="feedback feedback--error" role="alert">{importError}</p> : null}
+          {importStatus ? <p className="feedback" role="status" aria-label="Import feedback">{importStatus}</p> : null}
+          {copyFeedback ? <p className="feedback" role="status" aria-label="Copy feedback">{copyFeedback}</p> : null}
+        </div>
 
-      <section aria-label="Audit controls">
-        <CaseSelector cases={cases} selectedId={activeCaseId} onChange={selectCase} />
-        <p>{activeCase.sourceLabel}</p>
-        <p>{activeCase.description}</p>
-      </section>
+        <main id="audit-workspace" className="workspace reveal reveal--1">
+          <section className="case-strip" aria-label="Audit controls">
+            <CaseSelector cases={cases} selectedId={activeCaseId} onChange={selectCase} />
+            <div className="case-strip__provenance">
+              <span>{activeCase.eyebrow}</span>
+              <strong>{activeCase.sourceLabel}</strong>
+            </div>
+            <p>{activeCase.description}</p>
+          </section>
 
-      <AuditOverview report={activeReport} selectedLens={selectedLens} />
-      <ReadinessLenses selectedLens={selectedLens} scores={activeReport.scores} onSelect={setSelectedLens} />
-      <FindingsPanel
-        findings={activeReport.findings}
-        selectedSeverities={selectedSeverities}
-        onToggleSeverity={(severity) => {
-          setSelectedSeverities((current) => {
-            const next = new Set(current);
-            if (next.has(severity)) next.delete(severity);
-            else next.add(severity);
-            return next;
-          });
-        }}
-        onResetFilters={() => setSelectedSeverities(allSeverities())}
-      />
+          <div className="workspace__overview">
+            <AuditOverview report={activeReport} selectedLens={selectedLens} />
+            <div className="workspace__lenses">
+              <p className="control-label">Readiness lens</p>
+              <ReadinessLenses selectedLens={selectedLens} scores={activeReport.scores} onSelect={setSelectedLens} />
+            </div>
+          </div>
 
-      <section aria-label="Command and provenance">
-        <CopyCommandButton command={activeCase.command} onFeedback={setCopyFeedback} />
-      </section>
-    </main>
+          <section className="command-strip" aria-label="Command and provenance">
+            <div>
+              <span>Execution provenance</span>
+              <strong>Reproduce this evidence</strong>
+            </div>
+            <CopyCommandButton command={activeCase.command} onFeedback={setCopyFeedback} />
+          </section>
+
+          <FindingsPanel
+            findings={activeReport.findings}
+            selectedSeverities={selectedSeverities}
+            onToggleSeverity={(severity) => {
+              setSelectedSeverities((current) => {
+                const next = new Set(current);
+                if (next.has(severity)) next.delete(severity);
+                else next.add(severity);
+                return next;
+              });
+            }}
+            onResetFilters={() => setSelectedSeverities(allSeverities())}
+          />
+        </main>
+
+        <ExecutionProof />
+        <RecruiterContext />
+
+        <footer className="site-footer">
+          <strong>Viewer, not scanner.</strong>
+          <p>This hosted page is a report viewer. CookieDough audits run through the CLI, then produce portable reports for inspection here.</p>
+        </footer>
+      </div>
+    </>
   );
 }
