@@ -110,7 +110,7 @@ git commit -m "chore: scaffold CookieDough web demo"
 - Create: `web/src/lib/report-schema.ts`
 - Create: `web/src/lib/report-schema.test.ts`
 
-- [ ] **Step 1: Write failing schema tests**
+- [x] **Step 1: Write failing schema tests**
 
 Cover a valid report, a score above 100, a missing run id, an unknown severity, tolerated extra fields, and a file larger than `2 * 1024 * 1024` bytes. The public API is:
 
@@ -122,7 +122,7 @@ export async function parseAuditFile(file: File): Promise<AuditResult>;
 
 The oversized-file test must expect `ReportImportError` with code `file-too-large`; malformed content must use `invalid-json`; shape failures must use `invalid-report`.
 
-- [ ] **Step 2: Run the test and verify red**
+- [x] **Step 2: Run the test and verify red**
 
 Run:
 
@@ -132,11 +132,11 @@ npm --prefix web test -- src/lib/report-schema.test.ts
 
 Expected: failure because `report-schema.ts` does not exist.
 
-- [ ] **Step 3: Implement the typed schema**
+- [x] **Step 3: Implement the typed schema**
 
 Define literal unions matching the CLI contract and Zod schemas with scores constrained to integers from 0 through 100. Keep `.passthrough()` at entity boundaries so future CLI fields remain compatible. `parseAuditFile` checks `file.size` before calling `file.text()`, parses JSON in a dedicated `try/catch`, then delegates to `parseAuditResult`.
 
-- [ ] **Step 4: Run the focused and complete web tests**
+- [x] **Step 4: Run the focused and complete web tests**
 
 ```bash
 npm --prefix web test -- src/lib/report-schema.test.ts
@@ -145,7 +145,7 @@ npm --prefix web test
 
 Expected: all schema tests pass with no unhandled errors.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add web/src/types web/src/lib
