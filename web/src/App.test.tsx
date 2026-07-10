@@ -85,6 +85,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("App", () => {
@@ -243,7 +244,7 @@ describe("App", () => {
     expect(input.parentElement).toHaveAttribute("aria-busy", "false");
   });
 
-  it("resets the file input after each attempt so the same file can be selected again", async () => {
+  it("resets the file input after successful and failed attempts so the same file can be selected again", async () => {
     render(<App />);
 
     const input = screen.getByLabelText("Import report") as HTMLInputElement;
@@ -260,6 +261,17 @@ describe("App", () => {
     await screen.findByText("Imported finding");
 
     expect(inputValue).toBe("");
+
+    const failedFile = makeRejectedFile();
+    inputValue = "C:\\fakepath\\report.json";
+    fireEvent.change(input, { target: { files: [failedFile] } });
+    expect(await screen.findByRole("alert")).toHaveTextContent("We could not read that file. Please try again.");
+    expect(inputValue).toBe("");
+
+    inputValue = "C:\\fakepath\\report.json";
+    fireEvent.change(input, { target: { files: [failedFile] } });
+    await vi.waitFor(() => expect(failedFile.text).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(inputValue).toBe(""));
   });
 
   it("shows a generic read error and preserves the current report when File.text rejects", async () => {
