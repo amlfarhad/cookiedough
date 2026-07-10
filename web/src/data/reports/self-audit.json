@@ -1,0 +1,27 @@
+{
+  "run": {
+    "id": "run_20260703233601_6mrB8r",
+    "startedAt": "2026-07-03T23:36:01.090Z",
+    "completedAt": "2026-07-03T23:36:11.245Z",
+    "mode": "repo",
+    "supportLevel": "strong support"
+  },
+  "target": {
+    "repoUrl": "https://github.com/amlfarhad/cookiedough",
+    "commitSha": "dad5907a7e29dfee3f646a0037dddaf738614917"
+  },
+  "scores": {
+    "cookieDough": 100,
+    "demoReadiness": 100,
+    "customerLaunchReadiness": 100,
+    "engineeringHandoffReadiness": 100,
+    "verdict": "baked"
+  },
+  "findings": [],
+  "notes": [
+    "Credentials were not supplied.",
+    "Detected Node web project using npm.",
+    "Docker was unavailable. Host execution ran repo commands on this machine. Use --docker required for stricter isolation.",
+    "URL audit was not requested."
+  ]
+}
