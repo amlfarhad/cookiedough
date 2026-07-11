@@ -56,7 +56,7 @@ test.describe("CookieDough recruiter demo", () => {
     await expect(page.getByRole("button", { name: "medium: 1 findings" })).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByText("2 findings shown")).toBeVisible();
 
-    const finding = page.locator(".findings-panel__finding");
+    const finding = page.locator(".findings-panel__finding").first();
     await expect(finding).not.toHaveAttribute("open", "");
     await finding.locator("summary").click();
     await expect(finding).toHaveAttribute("open", "");
@@ -152,7 +152,7 @@ test.describe("CookieDough recruiter demo", () => {
       await expect(importInput).toBeFocused();
       await expect(page.locator(".import-report-button label")).toHaveCSS("outline-style", "solid");
 
-      const finding = page.locator(".findings-panel__finding");
+      const finding = page.locator(".findings-panel__finding").first();
       await finding.locator("summary").scrollIntoViewIfNeeded();
       await expect(finding.locator("summary")).toBeVisible();
       await finding.locator("summary").click();
@@ -215,7 +215,7 @@ test.describe("CookieDough recruiter demo", () => {
   test("prints closed finding details, evidence, and recommendations", async ({ page }) => {
     await page.goto("/");
     await page.getByLabel("Audit case").selectOption("northstar");
-    const finding = page.locator(".findings-panel__finding");
+    const finding = page.locator(".findings-panel__finding").first();
     await expect(finding).not.toHaveAttribute("open", "");
 
     await page.emulateMedia({ media: "print" });
