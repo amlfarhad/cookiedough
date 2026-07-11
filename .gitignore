@@ -6,6 +6,7 @@ coverage/
 web/test-results/
 web/playwright-report/
 web/.playwright-cli/
+.vercel/
 .DS_Store
 *.log
 .env
