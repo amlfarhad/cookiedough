@@ -1,0 +1,67 @@
+{
+  "run": {
+    "id": "run_finding_heavy_import",
+    "startedAt": "2026-07-10T00:00:00.000Z",
+    "mode": "repo-url",
+    "supportLevel": "partial support"
+  },
+  "target": { "url": "https://finding-heavy.example.com" },
+  "scores": {
+    "cookieDough": 41,
+    "demoReadiness": 56,
+    "customerLaunchReadiness": 38,
+    "engineeringHandoffReadiness": 62,
+    "verdict": "raw dough"
+  },
+  "findings": [
+    {
+      "id": "CD-HEAVY-001",
+      "severity": "blocker",
+      "category": "deployment-safety",
+      "title": "Release credentials are exposed to an untrusted execution path",
+      "description": "A deliberately long imported finding description confirms that the viewer preserves readable wrapping for evidence-heavy reports instead of truncating or hiding important diagnostic detail at narrow and desktop widths.",
+      "evidence": [{ "type": "security", "message": "The imported fixture carries a long blocker evidence message for visibility testing." }],
+      "recommendation": "Remove the credential path before release."
+    },
+    {
+      "id": "CD-HEAVY-002",
+      "severity": "high",
+      "category": "browser-console",
+      "title": "Critical customer route emits a console exception",
+      "description": "The long description verifies that a high-severity imported record remains inspectable after browser-side schema validation and local-only loading.",
+      "evidence": [{ "type": "console", "message": "Console exception persisted in the browser evidence fixture." }],
+      "recommendation": "Resolve the runtime exception."
+    },
+    {
+      "id": "CD-HEAVY-003",
+      "severity": "medium",
+      "category": "navigation",
+      "title": "Primary navigation lacks a visible focus transition",
+      "description": "This medium-severity record makes the state matrix exercise another distinct severity while retaining the full text.",
+      "evidence": [{ "type": "dom", "message": "Focusable control state did not visibly change." }],
+      "recommendation": "Add a clear focus treatment."
+    },
+    {
+      "id": "CD-HEAVY-004",
+      "severity": "low",
+      "category": "metadata",
+      "title": "Social image alt text is incomplete",
+      "description": "This low-severity record confirms that full content and recommendations render consistently across imported records.",
+      "evidence": [{ "type": "dom", "message": "Open Graph image alt text omitted context." }],
+      "recommendation": "Add descriptive social image alt text."
+    },
+    {
+      "id": "CD-HEAVY-005",
+      "severity": "info",
+      "category": "coverage",
+      "title": "Optional accessibility path was not exercised",
+      "description": "This informational record completes the five-severity fixture and confirms long imported copy stays available in the report viewer.",
+      "evidence": [{ "type": "coverage", "message": "Optional path intentionally remains outside the fixture run." }],
+      "recommendation": "Schedule the optional path for a later audit."
+    }
+  ],
+  "notes": [
+    "Imported fixture preserves all coverage notes in browser memory.",
+    "No execution command is part of this local report import."
+  ]
+}

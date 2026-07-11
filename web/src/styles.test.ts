@@ -46,8 +46,9 @@ describe("CSS architecture", () => {
     const config = JSON.parse(readFileSync(vercelConfigPath, "utf8")) as {
       headers: Array<{ headers: Array<{ key: string; value: string }> }>;
     };
-    const headers = config.headers[0]?.headers ?? [];
-    const csp = headers.find((header) => header.key === "Content-Security-Policy")?.value ?? "";
+    const csp = config.headers
+      .flatMap((rule) => rule.headers)
+      .find((header) => header.key === "Content-Security-Policy")?.value ?? "";
 
     expect(csp).not.toContain("unsafe-inline");
     expect(csp).not.toContain("data:");

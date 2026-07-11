@@ -170,6 +170,8 @@
 
 .audit-score__verdict {
   grid-column: 2;
+  display: grid;
+  gap: 3px;
   align-self: end;
   margin-top: 8px;
   color: var(--green);
@@ -177,6 +179,12 @@
   font-size: 0.75rem;
   font-weight: 750;
   text-transform: uppercase;
+}
+
+.audit-score__verdict span {
+  color: var(--muted);
+  font-size: 0.625rem;
+  font-weight: 650;
 }
 
 .audit-overview__selected-score[data-verdict="almost baked"] .audit-score__verdict,
@@ -261,6 +269,55 @@
   display: block;
   margin-top: 5px;
   font-size: 0.8125rem;
+}
+
+.command-strip--import > p {
+  padding: 15px 18px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.coverage-notes {
+  min-width: 0;
+  padding: 20px 18px 24px;
+  border-bottom: 1px solid var(--ink);
+}
+
+.coverage-notes__eyebrow {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.coverage-notes h2 {
+  margin-top: 5px;
+  font-size: 1.125rem;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.coverage-notes ul {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 0;
+  list-style: none;
+}
+
+.coverage-notes li {
+  min-width: 0;
+  padding-left: 12px;
+  border-left: 3px solid var(--blue);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .copy-command-button {

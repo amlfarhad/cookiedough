@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AuditOverview } from "./components/AuditOverview";
 import { CaseSelector } from "./components/CaseSelector";
 import { CopyCommandButton } from "./components/CopyCommandButton";
+import { CoverageNotes } from "./components/CoverageNotes";
 import { ExecutionProof } from "./components/ExecutionProof";
 import { FindingsPanel } from "./components/FindingsPanel";
 import { ImportReportButton } from "./components/ImportReportButton";
@@ -65,7 +66,7 @@ export default function App() {
             eyebrow: "Local report",
             description: "A report loaded only in this browser tab.",
             sourceLabel: "Private browser import",
-            command: "Imported from a local JSON file",
+            command: null,
             report: importedReport,
           },
         ]
@@ -82,8 +83,10 @@ export default function App() {
     const selectedCase = cases.find((reportCase) => reportCase.id === id);
     if (!selectedCase) return;
 
+    importRequestRef.current += 1;
     setActiveCaseId(selectedCase.id);
     setActiveReport(selectedCase.report);
+    setImportBusy(false);
     setImportError(null);
     setImportStatus(null);
     setCopyFeedback(null);
@@ -157,13 +160,23 @@ export default function App() {
             </div>
           </div>
 
-          <section className="command-strip" aria-label="Command and provenance">
-            <div className="command-strip__label">
-              <span>Execution provenance</span>
-              <strong>Reproduce this evidence</strong>
-            </div>
-            <CopyCommandButton command={activeCase.command} onFeedback={showCopyFeedback} />
-          </section>
+          {activeCase.command ? (
+            <section className="command-strip" aria-label="Command and provenance">
+              <div className="command-strip__label">
+                <span>Execution provenance</span>
+                <strong>Reproduce this evidence</strong>
+              </div>
+              <CopyCommandButton command={activeCase.command} onFeedback={showCopyFeedback} />
+            </section>
+          ) : (
+            <section className="command-strip command-strip--import" aria-label="Import provenance">
+              <div className="command-strip__label">
+                <span>Import provenance</span>
+                <strong>Loaded from this browser tab</strong>
+              </div>
+              <p>No execution command is embedded in this imported report.</p>
+            </section>
+          )}
 
           <FindingsPanel
             findings={activeReport.findings}
@@ -179,6 +192,7 @@ export default function App() {
             onResetFilters={() => setSelectedSeverities(allSeverities())}
           />
 
+          <CoverageNotes notes={activeReport.notes} />
           <ExecutionProof />
           <RecruiterContext />
         </main>

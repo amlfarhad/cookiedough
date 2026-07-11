@@ -47,6 +47,10 @@
     border-bottom: 0;
   }
 
+  .command-strip--import > p {
+    border-bottom: 0;
+  }
+
   .findings-panel__filters {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
@@ -260,6 +264,10 @@
     display: none;
   }
 
+  .coverage-notes {
+    break-inside: avoid;
+  }
+
   .case-strip {
     grid-template-columns: 1fr 2fr;
   }
@@ -285,6 +293,10 @@
 
   .findings-panel__finding-body,
   .findings-panel__finding:not([open]) > .findings-panel__finding-body {
+    display: block !important;
+  }
+
+  .findings-panel__finding:not([open]) > * {
     display: block !important;
   }
 

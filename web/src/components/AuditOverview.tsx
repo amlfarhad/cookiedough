@@ -43,6 +43,15 @@ export function AuditOverview({ report, selectedLens }: AuditOverviewProps) {
     <section className="audit-overview" aria-labelledby={headingId}>
       <p className="audit-overview__eyebrow">Selected audit / evidence record</p>
       <h2 id={headingId} aria-label={target}><BreakableTarget value={target} /></h2>
+      <div className="audit-overview__selected-score" data-verdict={report.scores.verdict}>
+        <p className="audit-score__label">{selectedLensMetadata.label}</p>
+        <output data-testid="selected-score">{selectedScore}</output>
+        <p className="audit-score__description">{selectedLensMetadata.description}</p>
+        <p className="audit-score__verdict" data-testid="overall-verdict">
+          <span>Overall verdict</span>
+          {report.scores.verdict}
+        </p>
+      </div>
       <dl className="audit-overview__metadata">
         <div>
           <dt>Audit mode</dt>
@@ -63,12 +72,6 @@ export function AuditOverview({ report, selectedLens }: AuditOverviewProps) {
           <dd>{formatRunDate(report.run.startedAt)}</dd>
         </div>
       </dl>
-      <div className="audit-overview__selected-score" data-verdict={report.scores.verdict}>
-        <p className="audit-score__label">{selectedLensMetadata.label}</p>
-        <output data-testid="selected-score">{selectedScore}</output>
-        <p className="audit-score__description">{selectedLensMetadata.description}</p>
-        <p className="audit-score__verdict">{report.scores.verdict}</p>
-      </div>
     </section>
   );
 }

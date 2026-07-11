@@ -124,7 +124,11 @@ describe("App", () => {
     expect(screen.getByText(/React, Next\.js, and Vite projects are covered through package-script discovery/i)).toBeInTheDocument();
     expect(screen.queryByText(/accessibility evidence/i)).not.toBeInTheDocument();
     expect(screen.getByText("25 CLI tests")).toBeInTheDocument();
-    expect(screen.getByText("70 web tests")).toBeInTheDocument();
+    expect(screen.getByText("70+ web tests")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Coverage and execution notes" })).toBeInTheDocument();
+    expect(screen.getByText(
+      "Docker was unavailable. Host execution ran repo commands on this machine. Use --docker required for stricter isolation.",
+    )).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Architecture" })).toHaveAttribute(
       "href",
       "https://github.com/amlfarhad/cookiedough/blob/main/docs/architecture.md",
@@ -162,6 +166,31 @@ describe("App", () => {
     expect(screen.getByTestId("selected-score")).toHaveTextContent("100");
   });
 
+  it("labels the raw report verdict separately from a selected readiness lens", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    importFile(
+      makeFile(
+        JSON.stringify({
+          ...importedReport,
+          scores: {
+            ...importedReport.scores,
+            cookieDough: 45,
+            engineeringHandoffReadiness: 100,
+            verdict: "raw dough",
+          },
+        }),
+      ),
+    );
+    await screen.findByText("Imported finding");
+
+    await user.click(screen.getByRole("button", { name: /Engineering handoff 100/i }));
+
+    expect(screen.getByTestId("selected-score")).toHaveTextContent("100");
+    expect(screen.getByText("Overall verdict")).toBeInTheDocument();
+    expect(screen.getByText("raw dough")).toBeInTheDocument();
+  });
+
   it("filters findings through the integrated severity controls", async () => {
     const user = userEvent.setup();
     render(<App />);
@@ -186,6 +215,11 @@ describe("App", () => {
     expect(screen.getByText("Imported finding")).toBeInTheDocument();
     expect(screen.getByTestId("selected-score")).toHaveTextContent("72");
     expect(screen.getByText("Private browser import")).toBeInTheDocument();
+    expect(screen.getByText("Import provenance")).toBeInTheDocument();
+    expect(screen.getByText("Loaded from this browser tab")).toBeInTheDocument();
+    expect(screen.getByText(/No execution command is embedded in this imported report\./i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Copy command" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("CookieDough command")).not.toBeInTheDocument();
   });
 
   it("shows malformed JSON errors without replacing the current report", async () => {
@@ -279,6 +313,27 @@ describe("App", () => {
     expect(input.parentElement).toHaveAttribute("aria-busy", "false");
   });
 
+  it("keeps a selected bundled case when a pending import resolves later", async () => {
+    const read = deferred<string>();
+    render(<App />);
+    const input = screen.getByLabelText("Import report");
+
+    importFile(makeDeferredFile(read.promise));
+    expect(screen.getByRole("status", { name: "Import feedback" })).toHaveTextContent("Importing report");
+
+    selectCase("docker-required");
+
+    expect(screen.getByLabelText("Audit case")).toHaveValue("docker-required");
+    expect(screen.getByTestId("selected-score")).toHaveTextContent("45");
+    expect(screen.queryByRole("status", { name: "Import feedback" })).not.toBeInTheDocument();
+    expect(input).not.toBeDisabled();
+
+    await act(async () => read.resolve(JSON.stringify(importedReport)));
+
+    expect(screen.getByLabelText("Audit case")).toHaveValue("docker-required");
+    expect(screen.queryByRole("option", { name: "Imported report" })).not.toBeInTheDocument();
+  });
+
   it("resets the file input after successful and failed attempts so the same file can be selected again", async () => {
     render(<App />);
 
@@ -361,8 +416,9 @@ describe("App", () => {
 
     await act(async () => read.resolve(JSON.stringify(importedReport)));
     await screen.findByText("Imported finding");
-    await user.click(screen.getByRole("button", { name: "Copy command" }));
     selectCase("self-audit");
+    await user.click(screen.getByRole("button", { name: "Copy command" }));
+    selectCase("docker-required");
 
     expect(screen.queryByRole("status", { name: "Copy feedback" })).not.toBeInTheDocument();
   });

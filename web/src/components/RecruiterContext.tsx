@@ -33,7 +33,7 @@ export function RecruiterContext() {
         </div>
         <div>
           <dt>Web verification</dt>
-          <dd><strong>70 web tests</strong><span>Report viewer and import workflow</span></dd>
+          <dd><strong>70+ web tests</strong><span>Report viewer and import workflow</span></dd>
         </div>
       </dl>
 

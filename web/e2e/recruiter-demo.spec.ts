@@ -34,11 +34,17 @@ test.describe("CookieDough recruiter demo", () => {
     await expect(page.getByRole("heading", { name: "CookieDough", exact: true })).toBeVisible();
     await expect(page.getByLabel("Audit case")).toHaveValue("self-audit");
     await expect(page.getByTestId("selected-score")).toHaveText("100");
+    await expect(page.getByRole("heading", { name: "Coverage and execution notes" })).toBeVisible();
+    await expect(page.getByText("No findings were recorded in this audit. The report is baked.")).toBeVisible();
     await expect(page.getByLabel("Audit case").locator("option:checked")).toHaveText("CookieDough self-audit");
 
     await page.getByLabel("Audit case").selectOption("docker-required");
     await expect(page.getByTestId("selected-score")).toHaveText("45");
-    await expect(page.getByText("Docker was required but unavailable")).toBeVisible();
+    await expect(page.getByText("Docker was required but unavailable", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "blocker: 1 findings" }).click();
+    await expect(page.getByText("No findings match the selected severities.")).toBeVisible();
+    await page.getByRole("button", { name: "Reset filters" }).click();
+    await expect(page.getByText("Docker was required but unavailable", { exact: true })).toBeVisible();
 
     await page.getByLabel("Audit case").selectOption("url-audit");
     await expect(page.getByTestId("selected-score")).toHaveText("93");
@@ -68,6 +74,10 @@ test.describe("CookieDough recruiter demo", () => {
     await expect(page.getByLabel("Audit case")).toHaveValue("imported");
     await expect(page.getByText("Imported finding")).toBeVisible();
     await expect(page.getByText("https://imported.example.com")).toBeVisible();
+    await expect(page.getByText("Import provenance")).toBeVisible();
+    await expect(page.getByText("Loaded from this browser tab")).toBeVisible();
+    await expect(page.getByText("No execution command is embedded in this imported report.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Copy command" })).toHaveCount(0);
 
     await expect(page.getByRole("link", { name: "Built by Amal Farhad" })).toHaveAttribute("href", "https://github.com/amlfarhad");
     await expect(page.getByRole("link", { name: "View CookieDough on GitHub" })).toHaveAttribute("href", "https://github.com/amlfarhad/cookiedough");
@@ -75,6 +85,7 @@ test.describe("CookieDough recruiter demo", () => {
       await expect(link).toHaveAttribute("rel", expect.stringContaining("noreferrer"));
     }
 
+    await page.getByLabel("Audit case").selectOption("url-audit");
     await page.getByRole("button", { name: "Copy command" }).click();
     await expect(page.getByLabel("Copy feedback")).toHaveText("Command copied");
     await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(await page.getByLabel("CookieDough command").textContent());
@@ -110,8 +121,22 @@ test.describe("CookieDough recruiter demo", () => {
       await expect(page.locator(".product-bar")).toBeVisible();
       await expect(page.getByLabel("Audit case")).toBeVisible();
       await expect(page.getByTestId("selected-score")).toBeVisible();
+      await expect(page.getByText("Overall verdict")).toBeVisible();
       await expect(page.getByText("Readiness lens")).toBeVisible();
       await expect(page.getByRole("heading", { name: "Findings", exact: true })).toBeVisible();
+
+      if (viewport.width === 320) {
+        const [scoreBox, verdictBox] = await Promise.all([
+          page.getByTestId("selected-score").boundingBox(),
+          page.getByTestId("overall-verdict").boundingBox(),
+        ]);
+        expect(scoreBox).not.toBeNull();
+        expect(verdictBox).not.toBeNull();
+        expect(scoreBox!.y).toBeGreaterThanOrEqual(0);
+        expect(scoreBox!.y + scoreBox!.height).toBeLessThanOrEqual(viewport.height);
+        expect(verdictBox!.y).toBeGreaterThanOrEqual(0);
+        expect(verdictBox!.y + verdictBox!.height).toBeLessThanOrEqual(viewport.height);
+      }
 
       await page.getByLabel("Audit case").selectOption("url-audit");
       await expect(page.getByRole("heading", { name: "https://example.com", exact: true })).toBeVisible();
@@ -154,5 +179,58 @@ test.describe("CookieDough recruiter demo", () => {
     await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/favicon.svg");
     await expect((await request.get("/cookiedough-preview.png")).ok()).toBeTruthy();
     await expect((await request.get("/favicon.svg")).ok()).toBeTruthy();
+  });
+
+  test("renders a finding-heavy imported report across all severities", async ({ page }) => {
+    await page.goto("/");
+    await page.getByLabel("Import report").setInputFiles("e2e/fixtures/finding-heavy-import-report.json");
+
+    await expect(page.getByLabel("Audit case")).toHaveValue("imported");
+    await expect(page.locator(".findings-panel__finding")).toHaveCount(5);
+    await expect(page.getByText("Release credentials are exposed to an untrusted execution path")).toBeVisible();
+    await page.locator(".findings-panel__finding").first().locator("summary").click();
+    await expect(page.getByText(/deliberately long imported finding description/i)).toBeVisible();
+
+    const severities = await page.locator(".finding-summary__severity").allTextContents();
+    expect(new Set(severities.map((severity) => severity.trim()))).toEqual(
+      new Set(["blocker", "high", "medium", "low", "info"]),
+    );
+  });
+
+  test("disables transitions under reduced motion", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+
+    const transitionDurations = await page.locator(".readiness-lenses__button, .finding-summary__icon").evaluateAll(
+      (elements) => elements.map((element) => Number.parseFloat(getComputedStyle(element).transitionDuration)),
+    );
+    expect(transitionDurations.every((duration) => duration <= 0.001)).toBe(true);
+  });
+
+  test("prints closed finding details, evidence, and recommendations", async ({ page }) => {
+    await page.goto("/");
+    await page.getByLabel("Audit case").selectOption("url-audit");
+    const finding = page.locator(".findings-panel__finding");
+    await expect(finding).not.toHaveAttribute("open", "");
+
+    await page.emulateMedia({ media: "print" });
+
+    const printMetrics = await Promise.all([
+      finding.locator(".findings-panel__finding-body"),
+      page.getByLabel("Evidence for CD-BROWSER-CONSOLE-001"),
+      page.getByText("Resolve runtime console errors on audited paths before demo or launch."),
+    ].map((locator) => locator.evaluate((element) => {
+      const style = getComputedStyle(element);
+      const box = element.getBoundingClientRect();
+
+      return { display: style.display, visibility: style.visibility, height: box.height, width: box.width };
+    })));
+
+    for (const metric of printMetrics) {
+      expect(metric.display).not.toBe("none");
+      expect(metric.visibility).toBe("visible");
+      expect(metric.height).toBeGreaterThan(0);
+      expect(metric.width).toBeGreaterThan(0);
+    }
   });
 });
