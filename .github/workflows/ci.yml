@@ -37,5 +37,5 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
-      - run: npm run build
-      - run: npm run test:e2e
+      - name: Build and run web E2E
+        run: npm run test:e2e

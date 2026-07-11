@@ -13,7 +13,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "preview": "vite preview",
-    "test:e2e": "playwright test"
+    "test:e2e": "npm run build && playwright test"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "5.2.8",

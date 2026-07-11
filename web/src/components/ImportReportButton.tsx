@@ -6,18 +6,6 @@ interface ImportReportButtonProps {
   readonly onSelectFile: (file: File) => Promise<void>;
 }
 
-const visuallyHiddenInputStyle = {
-  position: "absolute",
-  width: "1px",
-  height: "1px",
-  padding: 0,
-  margin: "-1px",
-  overflow: "hidden",
-  clip: "rect(0, 0, 0, 0)",
-  whiteSpace: "nowrap",
-  border: 0,
-} as const;
-
 export function ImportReportButton({ busy, onSelectFile }: ImportReportButtonProps) {
   const inputId = useId();
 
@@ -30,7 +18,6 @@ export function ImportReportButton({ busy, onSelectFile }: ImportReportButtonPro
       <input
         id={inputId}
         className="import-report-button__input"
-        style={visuallyHiddenInputStyle}
         type="file"
         accept=".json,application/json"
         disabled={busy}

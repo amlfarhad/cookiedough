@@ -74,6 +74,8 @@ npm --prefix web run build
 npm --prefix web run test:e2e
 ```
 
+`npm run test:e2e` builds the production bundle before starting the preview server and running browser checks.
+
 ## Engineering References
 
 - [Architecture](docs/architecture.md)

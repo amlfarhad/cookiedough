@@ -5,6 +5,8 @@ import { describe, expect, it } from "vitest";
 
 const sourceDirectory = dirname(fileURLToPath(import.meta.url));
 const entryPath = join(sourceDirectory, "styles.css");
+const importComponentPath = join(sourceDirectory, "components", "ImportReportButton.tsx");
+const vercelConfigPath = join(sourceDirectory, "..", "vercel.json");
 
 function readStyleSystem(): string {
   const moduleDirectory = join(sourceDirectory, "styles");
@@ -26,7 +28,31 @@ describe("CSS architecture", () => {
   });
 
   it("bridges hidden input focus to the visible import surface", () => {
-    expect(readStyleSystem()).toMatch(/\.import-report-button:focus-within\s+label/);
+    const styles = readStyleSystem();
+
+    expect(styles).toMatch(/\.import-report-button__input\s*\{[\s\S]*position:\s*absolute/);
+    expect(styles).toMatch(/\.import-report-button__input\s*\{[\s\S]*clip:\s*rect\(0, 0, 0, 0\)/);
+    expect(styles).toMatch(/\.import-report-button:focus-within\s+label/);
+  });
+
+  it("keeps import input presentation in CSS instead of a style attribute", () => {
+    const component = readFileSync(importComponentPath, "utf8");
+
+    expect(component).not.toMatch(/<input[\s\S]*style=/);
+    expect(component).not.toContain("visuallyHiddenInputStyle");
+  });
+
+  it("keeps the hosted policy self-contained", () => {
+    const config = JSON.parse(readFileSync(vercelConfigPath, "utf8")) as {
+      headers: Array<{ headers: Array<{ key: string; value: string }> }>;
+    };
+    const headers = config.headers[0]?.headers ?? [];
+    const csp = headers.find((header) => header.key === "Content-Security-Policy")?.value ?? "";
+
+    expect(csp).not.toContain("unsafe-inline");
+    expect(csp).not.toContain("data:");
+    expect(csp).toContain("style-src 'self'");
+    expect(csp).toContain("img-src 'self'");
   });
 
   it("forces closed finding detail bodies to print", () => {
