@@ -1,0 +1,37 @@
+{
+  "run": {
+    "id": "run_browser_import",
+    "startedAt": "2026-07-10T00:00:00.000Z",
+    "mode": "url",
+    "supportLevel": "partial support"
+  },
+  "target": {
+    "url": "https://imported.example.com"
+  },
+  "scores": {
+    "cookieDough": 72,
+    "demoReadiness": 80,
+    "customerLaunchReadiness": 65,
+    "engineeringHandoffReadiness": 75,
+    "verdict": "almost baked"
+  },
+  "findings": [
+    {
+      "id": "CD-IMPORT-001",
+      "severity": "high",
+      "category": "import-check",
+      "title": "Imported finding",
+      "description": "The imported report rendered from browser memory.",
+      "evidence": [
+        {
+          "type": "dom",
+          "message": "Imported report fixture"
+        }
+      ],
+      "recommendation": "Review the imported report."
+    }
+  ],
+  "notes": [
+    "Imported locally."
+  ]
+}
