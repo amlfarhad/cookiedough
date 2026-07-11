@@ -3,6 +3,9 @@ dist/
 .cookiedough-runs/
 .worktrees/
 coverage/
+web/test-results/
+web/playwright-report/
+web/.playwright-cli/
 .DS_Store
 *.log
 .env

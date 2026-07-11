@@ -2,6 +2,8 @@ import { expect, test, type Page } from "@playwright/test";
 
 const malformedReport = Buffer.from("{not-json");
 const browserFailures = new WeakMap<Page, string[]>();
+const previewImageUrl = "https://raw.githubusercontent.com/amlfarhad/cookiedough/main/web/public/cookiedough-preview.png";
+const previewImageAlt = "CookieDough recruiter demo showing a 93 readiness score and audit finding workspace.";
 
 test.describe("CookieDough recruiter demo", () => {
   test.beforeEach(async ({ page }) => {
@@ -9,6 +11,9 @@ test.describe("CookieDough recruiter demo", () => {
     page.on("pageerror", (error) => failures.push(`pageerror: ${error.message}`));
     page.on("console", (message) => {
       if (message.type() === "error") failures.push(`console: ${message.text()}`);
+    });
+    page.on("requestfailed", (request) => {
+      failures.push(`requestfailed: ${request.url()} (${request.failure()?.errorText ?? "unknown failure"})`);
     });
     await page.addInitScript(() => {
       window.sessionStorage.setItem("recruiter-demo-e2e", "true");
@@ -71,8 +76,27 @@ test.describe("CookieDough recruiter demo", () => {
     }
 
     await page.getByRole("button", { name: "Copy command" }).click();
-    await expect(page.getByLabel("Copy feedback")).toContainText(/Command copied|Select the command and copy it manually/);
+    await expect(page.getByLabel("Copy feedback")).toHaveText("Command copied");
+    await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(await page.getByLabel("CookieDough command").textContent());
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  });
+
+  test("selects the command when browser clipboard writes are rejected", async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: async () => Promise.reject(new Error("Clipboard write denied")),
+        },
+      });
+    });
+    await page.goto("/");
+
+    const command = await page.getByLabel("CookieDough command").textContent();
+    await page.getByRole("button", { name: "Copy command" }).click();
+
+    await expect(page.getByLabel("Copy feedback")).toHaveText("Select the command and copy it manually");
+    await expect.poll(() => page.evaluate(() => window.getSelection()?.toString())).toBe(command);
   });
 
   for (const viewport of [
@@ -119,12 +143,14 @@ test.describe("CookieDough recruiter demo", () => {
       "content",
       "Inspect verified CookieDough audit reports, execution evidence, readiness scores, and safety boundaries.",
     );
-    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", "/cookiedough-preview.png");
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", previewImageUrl);
     await expect(page.locator('meta[property="og:image:alt"]')).toHaveAttribute(
       "content",
-      "CookieDough recruiter demo showing a 93 readiness score and audit finding workspace.",
+      previewImageAlt,
     );
     await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", previewImageUrl);
+    await expect(page.locator('meta[name="twitter:image:alt"]')).toHaveAttribute("content", previewImageAlt);
     await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/favicon.svg");
     await expect((await request.get("/cookiedough-preview.png")).ok()).toBeTruthy();
     await expect((await request.get("/favicon.svg")).ok()).toBeTruthy();

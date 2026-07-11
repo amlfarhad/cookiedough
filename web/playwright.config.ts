@@ -8,6 +8,7 @@ export default defineConfig({
   reporter: "list",
   use: {
     baseURL: "http://127.0.0.1:4179",
+    permissions: ["clipboard-read", "clipboard-write"],
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
