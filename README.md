@@ -45,8 +45,9 @@ CookieDough does not submit payment flows and avoids controls labeled as destruc
 The Vercel release preview serves a static report viewer whose first screen is the
 working evidence cockpit: a verified CookieDough report, score and readiness
 lenses, target provenance, findings, evidence references, and the CLI command
-that produced the artifact. The deployment URL is intentionally not documented
-until a release preview exists.
+that produced the artifact.
+
+Open the recruiter demo at [web-amlfarhad-amlfarhads-projects.vercel.app](https://web-amlfarhad-amlfarhads-projects.vercel.app).
 
 The browser viewer renders verified artifacts bundled from the CLI and accepts
 private in-memory JSON imports. It does not execute audits. Audits, including

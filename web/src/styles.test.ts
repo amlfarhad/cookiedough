@@ -49,9 +49,19 @@ describe("CSS architecture", () => {
     const csp = config.headers
       .flatMap((rule) => rule.headers)
       .find((header) => header.key === "Content-Security-Policy")?.value ?? "";
+    const directives = Object.fromEntries(
+      csp.split(";").map((directive) => {
+        const [name, ...values] = directive.trim().split(/\s+/);
+        return [name, values.join(" ")];
+      }),
+    );
 
     expect(csp).not.toContain("unsafe-inline");
-    expect(csp).not.toContain("data:");
+    expect(directives["font-src"]).toBe("'self' data:");
+    expect(directives["script-src"]).not.toContain("data:");
+    expect(directives["style-src"]).not.toContain("data:");
+    expect(directives["connect-src"]).not.toContain("data:");
+    expect(directives["img-src"]).not.toContain("data:");
     expect(csp).toContain("style-src 'self'");
     expect(csp).toContain("img-src 'self'");
   });

@@ -428,19 +428,19 @@ git commit -m "ci: verify and document hosted demo"
 **Files:**
 - Modify only files required by review findings.
 
-- [ ] **Step 1: Request independent code review**
+- [x] **Step 1: Request independent code review**
 
 Review the feature diff from `077cc46` through the feature head against the approved design spec. Fix every critical or important finding, rerun the relevant focused tests, and commit fixes separately.
 
-- [ ] **Step 2: Run the public-artifact privacy gate**
+- [x] **Step 2: Run the public-artifact privacy gate**
 
 Scan tracked files and built output for home paths, email addresses, common token prefixes, private-key markers, `.env` values, localhost URLs outside test/config contexts, and credentials. Inspect every match and classify the gate as `CLEAN`, `CONFIRM`, or `BLOCK`.
 
-- [ ] **Step 3: Run fresh full verification**
+- [x] **Step 3: Run fresh full verification**
 
 Repeat all Task 8 checks from a clean working tree, then run `git diff --check` and confirm the built page in a real browser at desktop and mobile widths.
 
-- [ ] **Step 4: Deploy a Vercel preview**
+- [x] **Step 4: Deploy a Vercel preview**
 
 ```bash
 vercel deploy web -y
@@ -448,11 +448,11 @@ vercel deploy web -y
 
 Expected: Vercel returns a public HTTPS preview URL and the build status is ready.
 
-- [ ] **Step 5: Inspect the deployed page in a real browser**
+- [x] **Step 5: Inspect the deployed page in a real browser**
 
 Open the preview URL with Playwright, switch cases, expand evidence, exercise a malformed import, verify GitHub links, capture desktop/mobile screenshots, and confirm no console errors or layout overflow. Do not send report contents to any endpoint.
 
-- [ ] **Step 6: Push the verified feature branch**
+- [x] **Step 6: Push the verified feature branch**
 
 ```bash
 git push -u origin feat/recruiter-demo
