@@ -386,19 +386,19 @@ git commit -m "test: cover recruiter demo browser flows"
 - Modify: `README.md`
 - Modify: `.gitignore`
 
-- [ ] **Step 1: Configure Vercel**
+- [x] **Step 1: Configure Vercel**
 
 Set `framework` to `vite`, `buildCommand` to `npm run build`, and `outputDirectory` to `dist`. Add headers for `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=()`, and a CSP limited to self-hosted scripts/styles/images plus necessary data images.
 
-- [ ] **Step 2: Extend CI**
+- [x] **Step 2: Extend CI**
 
 Keep the existing CLI job and add a separate `web` job that runs checkout, Node setup with `web/package-lock.json` cache, `npm ci --prefix web`, browser install, typecheck, lint, tests, build, and Playwright acceptance tests.
 
-- [ ] **Step 3: Document the demo truthfully**
+- [x] **Step 3: Document the demo truthfully**
 
 Add the hosted-demo section, local web commands, artifact-import behavior, privacy boundary, and explicit statement that audits execute through the CLI rather than Vercel. Link the design spec and retain existing CLI usage and safety instructions.
 
-- [ ] **Step 4: Run all repository checks**
+- [x] **Step 4: Run all repository checks**
 
 ```bash
 npm run typecheck
@@ -416,7 +416,7 @@ npm audit --prefix web --audit-level=high
 
 Expected: all commands exit 0, 25 existing CLI tests still pass, all web tests pass, and both audit commands report zero high or critical vulnerabilities.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add .github/workflows/ci.yml .gitignore README.md web/vercel.json
