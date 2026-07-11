@@ -341,11 +341,11 @@ git commit -m "feat: craft recruiter-ready CookieDough experience"
 - Create after browser capture: `web/public/cookiedough-preview.png`
 - Modify: `web/index.html`
 
-- [ ] **Step 1: Write Playwright acceptance tests**
+- [x] **Step 1: Write Playwright acceptance tests**
 
 Run Vite preview on a deterministic local port. At 1440 by 900 and 390 by 844, assert the product name, initial 100 score, case switching to 45, medium finding filter, expanded evidence, valid import, malformed import error, GitHub link target, Open Graph title/image metadata, and absence of horizontal document overflow. Collect page errors and console errors and fail after each test if either list is nonempty.
 
-- [ ] **Step 2: Install the browser and run red**
+- [x] **Step 2: Install the browser and run red**
 
 ```bash
 npm --prefix web exec playwright install chromium
@@ -354,15 +354,15 @@ npm --prefix web run test:e2e
 
 Expected: FAIL on the Open Graph metadata assertion because the preview asset and metadata are introduced in Step 4.
 
-- [ ] **Step 3: Complete selectors and interaction behavior**
+- [x] **Step 3: Complete selectors and interaction behavior**
 
 Add stable accessible names or `data-testid` only where role-based selectors cannot uniquely identify score output. Do not weaken assertions to make the test pass.
 
-- [ ] **Step 4: Capture the real product preview**
+- [x] **Step 4: Capture the real product preview**
 
 Capture the first viewport at 1200 by 630 after loading the verified URL-audit case. Save it as `web/public/cookiedough-preview.png`, set it as `og:image` and `twitter:image`, and provide accurate title and description metadata.
 
-- [ ] **Step 5: Run desktop and mobile browser coverage**
+- [x] **Step 5: Run desktop and mobile browser coverage**
 
 ```bash
 npm --prefix web run build
@@ -371,7 +371,7 @@ npm --prefix web run test:e2e
 
 Expected: all browser tests pass with zero page or console errors and zero horizontal overflow.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add web/e2e web/playwright.config.ts web/public web/index.html
