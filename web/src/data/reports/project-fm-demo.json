@@ -1,0 +1,23 @@
+{
+  "run": {
+    "id": "run_20260711023912_kvR3kF",
+    "startedAt": "2026-07-11T02:39:12.287Z",
+    "completedAt": "2026-07-11T02:39:15.249Z",
+    "mode": "url",
+    "supportLevel": "strong support"
+  },
+  "target": {
+    "url": "https://project-fm-demo.vercel.app"
+  },
+  "scores": {
+    "cookieDough": 100,
+    "demoReadiness": 100,
+    "customerLaunchReadiness": 100,
+    "engineeringHandoffReadiness": 100,
+    "verdict": "baked"
+  },
+  "findings": [],
+  "notes": [
+    "Credentials were not supplied."
+  ]
+}

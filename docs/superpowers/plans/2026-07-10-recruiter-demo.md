@@ -156,8 +156,8 @@ git commit -m "feat: validate imported audit reports"
 
 **Files:**
 - Create: `web/src/data/reports/self-audit.json`
-- Create: `web/src/data/reports/url-audit.json`
-- Create: `web/src/data/reports/docker-required.json`
+- Create: `web/src/data/reports/project-fm-demo.json`
+- Create: `web/src/data/reports/northstar-fairlight-advisor.json`
 - Create: `web/src/data/report-cases.ts`
 - Create: `web/src/data/report-cases.test.ts`
 
@@ -167,19 +167,19 @@ Copy the exact `findings.json` files from these ignored local run directories:
 
 ```text
 .cookiedough-runs/self-local/findings.json
-.cookiedough-runs/example/findings.json
-.cookiedough-runs/docker-required/findings.json
+.cookiedough-runs/project-fm-demo/findings.json
+.cookiedough-runs/northstar-fairlight-advisor/findings.json
 ```
 
 Replace only the self-target repo URL `.` with `https://github.com/amlfarhad/cookiedough` so the public artifact has useful target context. Preserve run ids, timestamps, commit SHA, scores, findings, and notes.
 
 - [x] **Step 2: Write a failing provenance test**
 
-Define `ReportCase` with `id`, `label`, `eyebrow`, `description`, `sourceLabel`, `command`, and validated `report`. Assert that all case ids are unique, every report parses, every source label says `Verified CLI artifact`, and the three expected scores are 100, 93, and 45.
+Define `ReportCase` with `id`, `label`, `eyebrow`, `description`, `sourceLabel`, `command`, and validated `report`. Assert that all case ids are unique, every report parses, the self-audit and two supplied Vercel URL artifacts have truthful provenance, and the expected scores are 100, 100, and 70.
 
 - [x] **Step 3: Implement the case manifest**
 
-Export `reportCases` and `defaultReportCaseId`. Use labels `CookieDough self-audit`, `Deployed URL audit`, and `Isolation blocked safely`. Use exact runnable commands that correspond to each report mode and never describe the artifacts as live scans.
+Export `reportCases` and `defaultReportCaseId`. Use labels `CookieDough self-audit`, `Project FM`, and `Northstar`. Use exact runnable commands that correspond to each report mode and never describe the artifacts as live scans.
 
 - [x] **Step 4: Run provenance and privacy checks**
 
@@ -343,7 +343,7 @@ git commit -m "feat: craft recruiter-ready CookieDough experience"
 
 - [x] **Step 1: Write Playwright acceptance tests**
 
-Run Vite preview on a deterministic local port. At 1440 by 900 and 390 by 844, assert the product name, initial 100 score, case switching to 45, medium finding filter, expanded evidence, valid import, malformed import error, GitHub link target, Open Graph title/image metadata, and absence of horizontal document overflow. Collect page errors and console errors and fail after each test if either list is nonempty.
+Run Vite preview on a deterministic local port. At 1440 by 900 and 390 by 844, assert the product name, initial 100 score, case switching to the Project FM and Northstar URLs, Northstar finding filters, expanded evidence, valid import, malformed import error, GitHub link target, Open Graph title/image metadata, and absence of horizontal document overflow. Collect page errors and console errors and fail after each test if either list is nonempty.
 
 - [x] **Step 2: Install the browser and run red**
 

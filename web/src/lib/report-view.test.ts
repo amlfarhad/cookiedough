@@ -10,7 +10,7 @@ import {
   severityOrder,
 } from "./report-view";
 
-const report = reportCases[1]!.report;
+const report = reportCases[2]!.report;
 type TestFinding = Readonly<Pick<Finding, "id" | "severity">>;
 
 describe("report view helpers", () => {

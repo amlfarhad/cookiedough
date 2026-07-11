@@ -145,15 +145,15 @@ describe("App", () => {
     expect(main).not.toContainElement(screen.getByText(/hosted page is a report viewer/i));
   });
 
-  it("switches bundled cases and renders the safely blocked isolation score", () => {
+  it("switches bundled cases and renders the Northstar URL audit score", () => {
     render(<App />);
 
-    selectCase("docker-required");
+    selectCase("northstar");
 
-    expect(screen.getByLabelText("Audit case")).toHaveValue("docker-required");
-    expect(screen.getByTestId("selected-score")).toHaveTextContent("45");
-    expect(screen.getByText("could not execute")).toBeInTheDocument();
-    expect(screen.getByText("Docker was required but unavailable")).toBeInTheDocument();
+    expect(screen.getByLabelText("Audit case")).toHaveValue("northstar");
+    expect(screen.getByTestId("selected-score")).toHaveTextContent("70");
+    expect(screen.getByText("strong support")).toBeInTheDocument();
+    expect(screen.getByText("Browser audit captured failed network requests")).toBeInTheDocument();
   });
 
   it("updates the emphasized score when a readiness lens is selected", async () => {
@@ -194,14 +194,15 @@ describe("App", () => {
   it("filters findings through the integrated severity controls", async () => {
     const user = userEvent.setup();
     render(<App />);
-    selectCase("docker-required");
+    selectCase("northstar");
 
-    await user.click(screen.getByRole("button", { name: /blocker: 1 findings/i }));
+    await user.click(screen.getByRole("button", { name: /high: 1 findings/i }));
+    await user.click(screen.getByRole("button", { name: /medium: 1 findings/i }));
 
     expect(screen.getByText("0 findings shown")).toBeInTheDocument();
     expect(screen.getByText(/No findings match the selected severities/i)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Reset filters" }));
-    expect(screen.getByText("Docker was required but unavailable")).toBeInTheDocument();
+    expect(screen.getByText("Browser audit captured failed network requests")).toBeInTheDocument();
   });
 
   it("imports a valid JSON report into the temporary private case", async () => {
@@ -224,24 +225,24 @@ describe("App", () => {
 
   it("shows malformed JSON errors without replacing the current report", async () => {
     render(<App />);
-    selectCase("docker-required");
+    selectCase("northstar");
 
     importFile(makeFile("{not-json"));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("not valid JSON");
-    expect(screen.getByLabelText("Audit case")).toHaveValue("docker-required");
-    expect(screen.getByTestId("selected-score")).toHaveTextContent("45");
+    expect(screen.getByLabelText("Audit case")).toHaveValue("northstar");
+    expect(screen.getByTestId("selected-score")).toHaveTextContent("70");
   });
 
   it("shows a specific oversized-file error without replacing the current report", async () => {
     render(<App />);
-    selectCase("docker-required");
+    selectCase("northstar");
 
     importFile(makeFile("{}", MAX_REPORT_BYTES + 1));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("larger than 2 MB");
-    expect(screen.getByLabelText("Audit case")).toHaveValue("docker-required");
-    expect(screen.getByTestId("selected-score")).toHaveTextContent("45");
+    expect(screen.getByLabelText("Audit case")).toHaveValue("northstar");
+    expect(screen.getByTestId("selected-score")).toHaveTextContent("70");
   });
 
   it("clears an earlier import error after a successful import", async () => {
@@ -321,16 +322,16 @@ describe("App", () => {
     importFile(makeDeferredFile(read.promise));
     expect(screen.getByRole("status", { name: "Import feedback" })).toHaveTextContent("Importing report");
 
-    selectCase("docker-required");
+    selectCase("northstar");
 
-    expect(screen.getByLabelText("Audit case")).toHaveValue("docker-required");
-    expect(screen.getByTestId("selected-score")).toHaveTextContent("45");
+    expect(screen.getByLabelText("Audit case")).toHaveValue("northstar");
+    expect(screen.getByTestId("selected-score")).toHaveTextContent("70");
     expect(screen.queryByRole("status", { name: "Import feedback" })).not.toBeInTheDocument();
     expect(input).not.toBeDisabled();
 
     await act(async () => read.resolve(JSON.stringify(importedReport)));
 
-    expect(screen.getByLabelText("Audit case")).toHaveValue("docker-required");
+    expect(screen.getByLabelText("Audit case")).toHaveValue("northstar");
     expect(screen.queryByRole("option", { name: "Imported report" })).not.toBeInTheDocument();
   });
 
@@ -366,13 +367,13 @@ describe("App", () => {
 
   it("shows a generic read error and preserves the current report when File.text rejects", async () => {
     render(<App />);
-    selectCase("docker-required");
+    selectCase("northstar");
 
     importFile(makeRejectedFile());
 
     expect(await screen.findByRole("alert")).toHaveTextContent("We could not read that file. Please try again.");
-    expect(screen.getByLabelText("Audit case")).toHaveValue("docker-required");
-    expect(screen.getByTestId("selected-score")).toHaveTextContent("45");
+    expect(screen.getByLabelText("Audit case")).toHaveValue("northstar");
+    expect(screen.getByTestId("selected-score")).toHaveTextContent("70");
   });
 
   it("announces successful clipboard copies", async () => {
@@ -418,7 +419,7 @@ describe("App", () => {
     await screen.findByText("Imported finding");
     selectCase("self-audit");
     await user.click(screen.getByRole("button", { name: "Copy command" }));
-    selectCase("docker-required");
+    selectCase("northstar");
 
     expect(screen.queryByRole("status", { name: "Copy feedback" })).not.toBeInTheDocument();
   });
@@ -475,8 +476,8 @@ describe("App", () => {
     vi.stubGlobal("fetch", fetchMock);
     render(<App />);
 
-    selectCase("docker-required");
-    await user.click(screen.getByRole("button", { name: /Customer launch 45/i }));
+    selectCase("northstar");
+    await user.click(screen.getByRole("button", { name: /Customer launch 50/i }));
     importFile(makeFile(JSON.stringify(importedReport)));
     await screen.findByText("Imported finding");
 

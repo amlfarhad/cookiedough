@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 const malformedReport = Buffer.from("{not-json");
 const browserFailures = new WeakMap<Page, string[]>();
 const previewImageUrl = "https://raw.githubusercontent.com/amlfarhad/cookiedough/43891f9c474574513bfda1340a20006b1232f153/web/public/cookiedough-preview.png";
-const previewImageAlt = "CookieDough recruiter demo showing a 93 readiness score and audit finding workspace.";
+const previewImageAlt = "CookieDough recruiter demo showing Project FM and Northstar readiness evidence.";
 
 test.describe("CookieDough recruiter demo", () => {
   test.beforeEach(async ({ page }) => {
@@ -38,37 +38,42 @@ test.describe("CookieDough recruiter demo", () => {
     await expect(page.getByText("No findings were recorded in this audit. The report is baked.")).toBeVisible();
     await expect(page.getByLabel("Audit case").locator("option:checked")).toHaveText("CookieDough self-audit");
 
-    await page.getByLabel("Audit case").selectOption("docker-required");
-    await expect(page.getByTestId("selected-score")).toHaveText("45");
-    await expect(page.getByText("Docker was required but unavailable", { exact: true })).toBeVisible();
-    await page.getByRole("button", { name: "blocker: 1 findings" }).click();
+    await page.getByLabel("Audit case").selectOption("northstar");
+    await expect(page.getByTestId("selected-score")).toHaveText("70");
+    await expect(page.getByText("Browser audit captured failed network requests", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "high: 1 findings" }).click();
+    await page.getByRole("button", { name: "medium: 1 findings" }).click();
     await expect(page.getByText("No findings match the selected severities.")).toBeVisible();
     await page.getByRole("button", { name: "Reset filters" }).click();
-    await expect(page.getByText("Docker was required but unavailable", { exact: true })).toBeVisible();
+    await expect(page.getByText("Browser audit captured failed network requests", { exact: true })).toBeVisible();
 
-    await page.getByLabel("Audit case").selectOption("url-audit");
-    await expect(page.getByTestId("selected-score")).toHaveText("93");
+    await page.getByLabel("Audit case").selectOption("project-fm");
+    await expect(page.getByTestId("selected-score")).toHaveText("100");
+    await expect(page.getByRole("heading", { name: "https://project-fm-demo.vercel.app", exact: true })).toBeVisible();
+    await expect(page.getByText("No findings were recorded in this audit. The report is baked.")).toBeVisible();
+
+    await page.getByLabel("Audit case").selectOption("northstar");
     await expect(page.getByRole("button", { name: "medium: 1 findings" })).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByText("1 finding shown")).toBeVisible();
+    await expect(page.getByText("2 findings shown")).toBeVisible();
 
     const finding = page.locator(".findings-panel__finding");
     await expect(finding).not.toHaveAttribute("open", "");
     await finding.locator("summary").click();
     await expect(finding).toHaveAttribute("open", "");
-    await expect(page.getByLabel("Evidence for CD-BROWSER-CONSOLE-001")).toBeVisible();
-    await expect(page.getByText("Resolve runtime console errors on audited paths before demo or launch.")).toBeVisible();
+    await expect(page.getByLabel("Evidence for CD-BROWSER-NETWORK-001")).toBeVisible();
+    await expect(page.getByText("Fix failed requests or remove broken calls from the audited user paths.")).toBeVisible();
     await finding.locator("summary").click();
     await expect(finding).not.toHaveAttribute("open", "");
 
-    await page.getByLabel("Audit case").selectOption("docker-required");
+    await page.getByLabel("Audit case").selectOption("northstar");
     await page.getByLabel("Import report").setInputFiles({
       name: "malformed-report.json",
       mimeType: "application/json",
       buffer: malformedReport,
     });
     await expect(page.getByRole("alert")).toHaveText("The selected file is not valid JSON.");
-    await expect(page.getByLabel("Audit case")).toHaveValue("docker-required");
-    await expect(page.getByTestId("selected-score")).toHaveText("45");
+    await expect(page.getByLabel("Audit case")).toHaveValue("northstar");
+    await expect(page.getByTestId("selected-score")).toHaveText("70");
 
     await page.getByLabel("Import report").setInputFiles("e2e/fixtures/import-report.json");
     await expect(page.getByLabel("Audit case")).toHaveValue("imported");
@@ -85,7 +90,7 @@ test.describe("CookieDough recruiter demo", () => {
       await expect(link).toHaveAttribute("rel", expect.stringContaining("noreferrer"));
     }
 
-    await page.getByLabel("Audit case").selectOption("url-audit");
+    await page.getByLabel("Audit case").selectOption("project-fm");
     await page.getByRole("button", { name: "Copy command" }).click();
     await expect(page.getByLabel("Copy feedback")).toHaveText("Command copied");
     await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toBe(await page.getByLabel("CookieDough command").textContent());
@@ -138,8 +143,8 @@ test.describe("CookieDough recruiter demo", () => {
         expect(verdictBox!.y + verdictBox!.height).toBeLessThanOrEqual(viewport.height);
       }
 
-      await page.getByLabel("Audit case").selectOption("url-audit");
-      await expect(page.getByRole("heading", { name: "https://example.com", exact: true })).toBeVisible();
+      await page.getByLabel("Audit case").selectOption("northstar");
+      await expect(page.getByRole("heading", { name: "https://northstar-fairlight-advisor.vercel.app", exact: true })).toBeVisible();
       await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
       const importInput = page.getByLabel("Import report");
@@ -209,7 +214,7 @@ test.describe("CookieDough recruiter demo", () => {
 
   test("prints closed finding details, evidence, and recommendations", async ({ page }) => {
     await page.goto("/");
-    await page.getByLabel("Audit case").selectOption("url-audit");
+    await page.getByLabel("Audit case").selectOption("northstar");
     const finding = page.locator(".findings-panel__finding");
     await expect(finding).not.toHaveAttribute("open", "");
 
@@ -217,8 +222,8 @@ test.describe("CookieDough recruiter demo", () => {
 
     const printMetrics = await Promise.all([
       finding.locator(".findings-panel__finding-body"),
-      page.getByLabel("Evidence for CD-BROWSER-CONSOLE-001"),
-      page.getByText("Resolve runtime console errors on audited paths before demo or launch."),
+      page.getByLabel("Evidence for CD-BROWSER-NETWORK-001"),
+      page.getByText("Fix failed requests or remove broken calls from the audited user paths."),
     ].map((locator) => locator.evaluate((element) => {
       const style = getComputedStyle(element);
       const box = element.getBoundingClientRect();

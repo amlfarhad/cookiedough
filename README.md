@@ -49,6 +49,8 @@ that produced the artifact.
 
 Open the recruiter demo at [web-amlfarhad-amlfarhads-projects.vercel.app](https://web-amlfarhad-amlfarhads-projects.vercel.app).
 
+The bundled cases are the CookieDough self-audit, [Project FM](https://project-fm-demo.vercel.app), and [Northstar](https://northstar-fairlight-advisor.vercel.app). Their reports are captured CLI artifacts; the hosted viewer does not re-scan or proxy those URLs.
+
 The browser viewer renders verified artifacts bundled from the CLI and accepts
 private in-memory JSON imports. It does not execute audits. Audits, including
 repository isolation, Docker decisions, Playwright collection, and report

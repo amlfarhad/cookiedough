@@ -10,7 +10,7 @@ import { FindingsPanel } from "./FindingsPanel";
 import { ReadinessLenses } from "./ReadinessLenses";
 import { ImportReportButton } from "./ImportReportButton";
 
-const reportWithFindings = reportCases[1]!.report;
+const reportWithFindings = reportCases[2]!.report;
 const emptyReport = reportCases[0]!.report;
 
 afterEach(cleanup);
@@ -57,13 +57,13 @@ describe("ReadinessLenses", () => {
 
     render(<ReadinessHarness onSelect={onSelect} />);
 
-    const demoButton = screen.getByRole("button", { name: /demo 90/i });
+    const demoButton = screen.getByRole("button", { name: /demo 70/i });
     demoButton.focus();
     await user.keyboard("{Enter}");
     expect(onSelect).toHaveBeenNthCalledWith(1, "demo");
     expect(demoButton).toHaveAttribute("aria-pressed", "true");
 
-    const launchButton = screen.getByRole("button", { name: /customer launch 90/i });
+    const launchButton = screen.getByRole("button", { name: /customer launch 50/i });
     launchButton.focus();
     await user.keyboard(" ");
 
@@ -141,7 +141,9 @@ describe("FindingsPanel", () => {
     expect(details).toHaveAttribute("open");
     expect(screen.getByText(reportWithFindings.findings[0]!.id)).toBeInTheDocument();
     expect(screen.getByText(reportWithFindings.findings[0]!.description)).toBeInTheDocument();
-    expect(screen.getByText("Recommendation").parentElement).toHaveTextContent(reportWithFindings.findings[0]!.recommendation);
+    expect(screen.getAllByText("Recommendation")[0]?.parentElement).toHaveTextContent(
+      reportWithFindings.findings[0]!.recommendation,
+    );
     expect(screen.getByText(reportWithFindings.findings[0]!.evidence[0]!.message)).toBeInTheDocument();
   });
 

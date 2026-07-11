@@ -1,8 +1,8 @@
 import type { AuditResult } from "../types/audit";
 import { parseAuditResult } from "../lib/report-schema";
-import dockerRequiredReport from "./reports/docker-required.json";
+import northstarReport from "./reports/northstar-fairlight-advisor.json";
+import projectFmReport from "./reports/project-fm-demo.json";
 import selfAuditReport from "./reports/self-audit.json";
-import urlAuditReport from "./reports/url-audit.json";
 
 type DeepReadonly<T> = T extends (...args: never[]) => unknown
   ? T
@@ -21,7 +21,7 @@ function deepFreeze<T>(value: T): DeepReadonly<T> {
   return value as DeepReadonly<T>;
 }
 
-export type ReportCaseId = "self-audit" | "url-audit" | "docker-required";
+export type ReportCaseId = "self-audit" | "project-fm" | "northstar";
 
 export interface ReportCase {
   readonly id: ReportCaseId;
@@ -34,8 +34,8 @@ export interface ReportCase {
 }
 
 const selfAudit = parseAuditResult(selfAuditReport);
-const urlAudit = parseAuditResult(urlAuditReport);
-const dockerRequired = parseAuditResult(dockerRequiredReport);
+const projectFm = parseAuditResult(projectFmReport);
+const northstar = parseAuditResult(northstarReport);
 
 export const reportCases = deepFreeze([
   {
@@ -48,22 +48,22 @@ export const reportCases = deepFreeze([
     report: selfAudit,
   },
   {
-    id: "url-audit",
-    label: "Deployed URL audit",
-    eyebrow: "Browser evidence",
-    description: "Verified browser audit of https://example.com with one recorded console error.",
-    sourceLabel: "Verified CLI artifact",
-    command: "node dist/src/cli/index.js audit --url https://example.com --out .cookiedough-runs/example --json",
-    report: urlAudit,
+    id: "project-fm",
+    label: "Project FM",
+    eyebrow: "Project evidence",
+    description: "Verified URL audit of the deployed tactical reconstruction replay; no findings were captured.",
+    sourceLabel: "Verified CLI URL artifact",
+    command: "node dist/src/cli/index.js audit --url https://project-fm-demo.vercel.app --out .cookiedough-runs/project-fm-demo --json",
+    report: projectFm,
   },
   {
-    id: "docker-required",
-    label: "Isolation blocked safely",
-    eyebrow: "Execution evidence",
-    description: "Verified repository audit with Docker required; execution was blocked because Docker was unavailable.",
-    sourceLabel: "Verified CLI artifact",
-    command: "node dist/src/cli/index.js audit --repo . --docker required --out .cookiedough-runs/docker-required --json",
-    report: dockerRequired,
+    id: "northstar",
+    label: "Northstar",
+    eyebrow: "Portfolio evidence",
+    description: "Verified URL audit of the nonprofit financial intelligence workspace; two browser-path findings remain in this captured report.",
+    sourceLabel: "Verified CLI URL artifact",
+    command: "node dist/src/cli/index.js audit --url https://northstar-fairlight-advisor.vercel.app --out .cookiedough-runs/northstar-fairlight-advisor --json",
+    report: northstar,
   },
 ] satisfies readonly ReportCase[]);
 

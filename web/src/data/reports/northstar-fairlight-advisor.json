@@ -1,0 +1,52 @@
+{
+  "run": {
+    "id": "run_20260711023924_N5TRr7",
+    "startedAt": "2026-07-11T02:39:24.103Z",
+    "completedAt": "2026-07-11T02:40:07.517Z",
+    "mode": "url",
+    "supportLevel": "strong support"
+  },
+  "target": {
+    "url": "https://northstar-fairlight-advisor.vercel.app"
+  },
+  "scores": {
+    "cookieDough": 70,
+    "demoReadiness": 70,
+    "customerLaunchReadiness": 50,
+    "engineeringHandoffReadiness": 100,
+    "verdict": "almost baked"
+  },
+  "findings": [
+    {
+      "id": "CD-BROWSER-NETWORK-001",
+      "severity": "medium",
+      "category": "console-network-errors",
+      "title": "Browser audit captured failed network requests",
+      "description": "1 request(s) failed while CookieDough clicked through the app.",
+      "evidence": [
+        {
+          "type": "network",
+          "message": "failed https://northstar-fairlight-advisor.vercel.app/assets/fairlight-advisor-public-DLf36f4k.js net::ERR_ABORTED"
+        }
+      ],
+      "recommendation": "Fix failed requests or remove broken calls from the audited user paths."
+    },
+    {
+      "id": "CD-BROWSER-INERT-001",
+      "severity": "high",
+      "category": "dead-navigation",
+      "title": "Clickable controls did not produce visible navigation or UI changes",
+      "description": "1 clicked control(s) appeared inert.",
+      "evidence": [
+        {
+          "type": "dom",
+          "message": "Clicked \"ASSET MANAGEMENT LANE\n\nPortfolio Growth\n\n5\" on https://northstar-fairlight-advisor.vercel.app/ with no visible change"
+        }
+      ],
+      "recommendation": "Wire the controls to real behavior or remove them from the shipped surface."
+    }
+  ],
+  "notes": [
+    "Credentials were not supplied."
+  ]
+}
