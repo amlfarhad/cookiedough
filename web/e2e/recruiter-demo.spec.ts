@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 const malformedReport = Buffer.from("{not-json");
 const browserFailures = new WeakMap<Page, string[]>();
-const previewImageUrl = "https://raw.githubusercontent.com/amlfarhad/cookiedough/43891f9c474574513bfda1340a20006b1232f153/web/public/cookiedough-preview.png";
+const previewImageUrl = "https://raw.githubusercontent.com/amlfarhad/cookiedough/8b4713893076600ab84651cabdc2f03cfee50d6b/web/public/cookiedough-preview.png";
 const previewImageAlt = "CookieDough recruiter demo showing Project FM and Northstar readiness evidence.";
 
 test.describe("CookieDough recruiter demo", () => {
